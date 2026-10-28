@@ -19,7 +19,7 @@ Built from the Hope Scholar SRS and UML design (use case, class, sequence and co
 
 ## Quick start
 
-Requirements: **Node.js 20 or newer** ([nodejs.org](https://nodejs.org)) and Git. No database server is needed (it uses a local SQLite file).
+Requirements: **Node.js 22.5 or newer (Node 24 works too)** ([nodejs.org](https://nodejs.org)) and Git. No database server is needed (it uses a local SQLite file).
 
 ```bash
 git clone https://github.com/<your-username>/hope-scholar.git

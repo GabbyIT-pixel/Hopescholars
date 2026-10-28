@@ -1,5 +1,6 @@
 'use strict';
-const Database = require('better-sqlite3');
+// Built-in SQLite (Node 22.5+): no native compile step, so it installs on Windows, Mac, Linux and Render.
+const { DatabaseSync } = require('node:sqlite');
 
 const SCHEMA = `
 PRAGMA journal_mode = WAL;
@@ -109,8 +110,20 @@ CREATE INDEX IF NOT EXISTS idx_audit_at ON audit_log(at DESC);
 `;
 
 function openDb(path) {
-  const db = new Database(path);
+  const db = new DatabaseSync(path);
   db.exec(SCHEMA);
+  // db.transaction(fn) -> function that runs fn atomically (BEGIN / COMMIT / ROLLBACK)
+  db.transaction = (fn) => (...args) => {
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const result = fn(...args);
+      db.exec('COMMIT');
+      return result;
+    } catch (err) {
+      db.exec('ROLLBACK');
+      throw err;
+    }
+  };
   return db;
 }
 
