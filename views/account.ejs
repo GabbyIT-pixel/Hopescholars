@@ -1,0 +1,17 @@
+<%- include('partials/head') %>
+<section class="narrow">
+  <h1>Account settings</h1>
+  <p class="muted"><%= currentUser.email %> · <%= currentUser.role %></p>
+  <%- include('partials/errors', { errors }) %>
+  <form method="post" action="/account" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Full name <input name="name" value="<%= currentUser.name %>" required maxlength="80"></label>
+    <h2>Change password <span class="muted small">(optional)</span></h2>
+    <label>Current password <input type="password" name="current_password" autocomplete="current-password"></label>
+    <label>New password <input type="password" name="new_password" autocomplete="new-password" minlength="10"></label>
+    <label>Confirm new password <input type="password" name="confirm" autocomplete="new-password"></label>
+    <p class="help">Changing your password signs you out on your other devices.</p>
+    <button class="btn btn-primary btn-lg" type="submit">Save changes</button>
+  </form>
+</section>
+<%- include('partials/foot') %>

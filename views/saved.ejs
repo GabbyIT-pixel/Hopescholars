@@ -1,0 +1,15 @@
+<%- include('partials/head') %>
+<h1>Saved scholarships</h1>
+<% if (!rows.length) { %><div class="card center"><p>You have not saved any scholarships yet.</p><a class="btn btn-primary" href="/scholarships">Find scholarships</a></div><% } %>
+<ul class="list big">
+  <% rows.forEach(function(s){ %>
+  <li>
+    <div><a href="/scholarships/<%= s.id %>"><strong><%= s.title %></strong></a><br><span class="muted"><%= s.provider %> · Deadline <%= fmtDate(s.deadline) %> · Reminder <%= s.remind_days %> days before</span></div>
+    <div class="row-actions">
+      <span class="chip chip-<%= urgency(s.deadline) %>"><%= daysLabel(s.deadline) %></span>
+      <form method="post" action="/scholarships/<%= s.id %>/unsave"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="back" value="saved"><button class="btn btn-ghost">Remove</button></form>
+    </div>
+  </li>
+  <% }) %>
+</ul>
+<%- include('partials/foot') %>

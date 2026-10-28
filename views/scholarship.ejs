@@ -1,0 +1,64 @@
+<%- include('partials/head') %>
+<p><a href="/scholarships">← All scholarships</a></p>
+<% if (s.status !== 'verified') { %><div class="flash flash-info">This listing is <strong><%= s.status %></strong> and is not visible to students.<% if (s.reject_reason) { %> Reason: <%= s.reject_reason %><% } %></div><% } %>
+<div class="detail">
+  <article>
+    <span class="chip chip-<%= urgency(s.deadline) %>"><%= daysLabel(s.deadline) %></span>
+    <h1><%= s.title %></h1>
+    <p class="muted"><%= s.provider %></p>
+    <dl class="facts">
+      <div><dt>Deadline</dt><dd><%= fmtDate(s.deadline) %></dd></div>
+      <div><dt>Award</dt><dd><%= s.award_value || 'See provider' %></dd></div>
+      <div><dt>Level</dt><dd><%= s.education_level %></dd></div>
+      <div><dt>Field</dt><dd><%= s.field_of_study %></dd></div>
+      <div><dt>Country</dt><dd><%= s.country === 'Any' ? 'Open to all' : s.country %></dd></div>
+      <div><dt>Need-based</dt><dd><%= s.need_based ? 'Yes' : 'No' %></dd></div>
+    </dl>
+    <h2>About this scholarship</h2>
+    <p class="pre"><%= s.description %></p>
+    <h2>Eligibility requirements</h2>
+    <p class="pre"><%= s.eligibility %></p>
+    <% if (s.instructions) { %><h2>How to apply</h2><p class="pre"><%= s.instructions %></p><% } %>
+    <p><a class="btn btn-primary btn-lg" href="<%= s.application_url %>" target="_blank" rel="noopener noreferrer nofollow">Apply on the provider's website ↗</a></p>
+    <p class="muted small">You apply on the provider's official site. Hope Scholar helps you find, organise and track.</p>
+  </article>
+  <aside>
+    <% if (currentUser && currentUser.role === 'student') { %>
+      <% if (m) { %>
+        <div class="card">
+          <h2>Your match: <span class="match"><%= m.score %>%</span></h2>
+          <% if (m.reasons.length) { %><ul class="ticks"><% m.reasons.forEach(function(r){ %><li><%= r %></li><% }) %></ul><% } %>
+          <% if (m.blockers.length) { %><p><strong>Check before applying:</strong></p><ul class="warns"><% m.blockers.forEach(function(b){ %><li><%= b %></li><% }) %></ul><% } %>
+        </div>
+      <% } else { %>
+        <div class="card"><p>Complete your <a href="/profile">profile</a> to see how well this matches you.</p></div>
+      <% } %>
+      <% if (s.status === 'verified') { %>
+      <div class="card">
+        <% if (saved) { %>
+          <p>✔ Saved. Reminder <%= saved.remind_days %> days before the deadline.</p>
+          <form method="post" action="/scholarships/<%= s.id %>/unsave"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn">Remove from saved</button></form>
+        <% } else { %>
+          <form method="post" action="/scholarships/<%= s.id %>/save" class="form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label>Remind me <select name="remind_days"><option value="3">3 days before</option><option value="7" selected>7 days before</option><option value="14">14 days before</option><option value="30">30 days before</option></select></label>
+            <button class="btn btn-primary" type="submit">Save scholarship</button>
+          </form>
+        <% } %>
+      </div>
+      <div class="card">
+        <h2>Track your application</h2>
+        <form method="post" action="/scholarships/<%= s.id %>/track" class="form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <label>Status <select name="status"><%- include('partials/options', { list: statuses, selected: tracked ? tracked.status : 'Interested' }) %></select></label>
+          <label>Notes <textarea name="notes" rows="3" maxlength="500"><%= tracked && tracked.notes ? tracked.notes : '' %></textarea></label>
+          <button class="btn" type="submit"><%= tracked ? 'Update status' : 'Start tracking' %></button>
+        </form>
+      </div>
+      <% } %>
+    <% } else if (!currentUser) { %>
+      <div class="card"><h2>Want to apply?</h2><p>Create a free account to save this scholarship, get a deadline reminder and track your application.</p><a class="btn btn-primary" href="/register">Sign up free</a> <a class="btn btn-ghost" href="/login">Log in</a></div>
+    <% } %>
+  </aside>
+</div>
+<%- include('partials/foot') %>

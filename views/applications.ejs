@@ -1,0 +1,30 @@
+<%- include('partials/head') %>
+<h1>My applications</h1>
+<% if (!rows.length) { %><div class="card center"><p>Nothing tracked yet. Open a scholarship and choose “Start tracking”, or save one.</p><a class="btn btn-primary" href="/scholarships">Find scholarships</a></div><% } %>
+<div class="table-wrap">
+<% if (rows.length) { %>
+<table>
+  <thead><tr><th>Scholarship</th><th>Deadline</th><th>Status</th><th>Notes</th><th><span class="sr">Actions</span></th></tr></thead>
+  <tbody>
+  <% rows.forEach(function(r){ %>
+    <tr>
+      <td data-label="Scholarship"><a href="/scholarships/<%= r.id %>"><%= r.title %></a><br><span class="muted small"><%= r.provider %></span></td>
+      <td data-label="Deadline"><%= fmtDate(r.deadline) %><br><span class="chip chip-<%= urgency(r.deadline) %>"><%= daysLabel(r.deadline) %></span></td>
+      <td data-label="Status" colspan="3">
+        <form method="post" action="/scholarships/<%= r.id %>/track" class="inline-edit">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="back" value="applications">
+          <label class="sr" for="st<%= r.id %>">Status</label>
+          <select id="st<%= r.id %>" name="status"><%- include('partials/options', { list: statuses, selected: r.status }) %></select>
+          <label class="sr" for="nt<%= r.id %>">Notes</label>
+          <input id="nt<%= r.id %>" name="notes" value="<%= r.notes || '' %>" placeholder="Notes" maxlength="500">
+          <button class="btn" type="submit">Update</button>
+        </form>
+        <form method="post" action="/scholarships/<%= r.id %>/untrack" class="inline"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-ghost small" type="submit">Stop tracking</button></form>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+<% } %>
+</div>
+<%- include('partials/foot') %>

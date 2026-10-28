@@ -1,0 +1,30 @@
+<%- include('partials/head') %>
+<h1>Find scholarships</h1>
+<form method="get" action="/scholarships" class="filters" role="search">
+  <label class="grow">Search <input type="search" name="q" value="<%= f.q %>" placeholder="Keyword, provider or topic" maxlength="80"></label>
+  <label>Field <select name="field"><option value="">All fields</option><%- include('partials/options', { list: v.FIELDS.slice(1), selected: f.field }) %></select></label>
+  <label>Level <select name="level"><option value="">All levels</option><%- include('partials/options', { list: v.LEVELS, selected: f.level }) %></select></label>
+  <label>Country <select name="country"><option value="">All countries</option><%- include('partials/options', { list: v.COUNTRIES.slice(1), selected: f.country }) %></select></label>
+  <label>Deadline <select name="within">
+    <option value="">Any time</option>
+    <% [30,60,90].forEach(function(n){ %><option value="<%= n %>" <%= f.within === n ? 'selected' : '' %>>Within <%= n %> days</option><% }) %></select></label>
+  <label>Sort <select name="sort"><option value="deadline" <%= f.sort === 'deadline' ? 'selected' : '' %>>Closing soonest</option><option value="newest" <%= f.sort === 'newest' ? 'selected' : '' %>>Newest</option></select></label>
+  <label class="check"><input type="checkbox" name="need" value="1" <%= f.need ? 'checked' : '' %>> Need-based only</label>
+  <div class="filter-actions"><button class="btn btn-primary" type="submit">Search</button> <a class="btn btn-ghost" href="/scholarships">Clear</a></div>
+</form>
+<p class="muted" aria-live="polite"><strong><%= total %></strong> open scholarship<%= total === 1 ? '' : 's' %> found.
+  <% if (!currentUser) { %><a href="/register">Sign up</a> to see how well each one matches you.<% } %></p>
+<% if (!items.length) { %>
+  <div class="card center"><h2>No scholarships match these filters</h2><p>Try removing a filter or searching a broader keyword.</p><a class="btn" href="/scholarships">Clear filters</a></div>
+<% } %>
+<div class="cards">
+  <% items.forEach(function(it){ %><%- include('partials/card', { s: it.s, m: it.m }) %><% }) %>
+</div>
+<% if (pages > 1) { %>
+<nav class="pager" aria-label="Pages">
+  <% if (page > 1) { %><a class="btn" href="/scholarships?<%= qs %>&page=<%= page - 1 %>">← Previous</a><% } %>
+  <span>Page <%= page %> of <%= pages %></span>
+  <% if (page < pages) { %><a class="btn" href="/scholarships?<%= qs %>&page=<%= page + 1 %>">Next →</a><% } %>
+</nav>
+<% } %>
+<%- include('partials/foot') %>

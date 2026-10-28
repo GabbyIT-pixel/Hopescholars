@@ -1,0 +1,19 @@
+<%- include('partials/head') %>
+<section class="narrow">
+  <h1>Reset your password</h1>
+  <% if (sent) { %>
+    <div class="flash flash-success" role="status">If that email belongs to an account, a reset link has been sent. The link works once and expires in 30 minutes.</div>
+    <% if (link) { %>
+      <div class="card demo"><p><strong>Demo mode:</strong> no email service is connected, so here is the link:</p><p><a href="<%= link %>"><%= link %></a></p></div>
+    <% } %>
+    <p><a href="/login">Back to log in</a></p>
+  <% } else { %>
+    <p>Enter your email and we will send you a secure, time-limited link.</p>
+    <form method="post" action="/forgot" class="form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>Email address <input type="email" name="email" autocomplete="email" required></label>
+      <button class="btn btn-primary btn-lg" type="submit">Send reset link</button>
+    </form>
+  <% } %>
+</section>
+<%- include('partials/foot') %>

@@ -1,0 +1,29 @@
+<%- include('partials/head') %>
+<div class="page-head"><h1>Manage listings</h1><a class="btn btn-primary" href="/admin/listings/new">Add a scholarship</a></div>
+<nav class="tabs" aria-label="Filter by status">
+  <a href="/admin/listings" <%- !status ? 'aria-current="page"' : '' %>>All</a>
+  <% ['pending','verified','rejected','inactive'].forEach(function(st){ %><a href="/admin/listings?status=<%= st %>" <%- status === st ? 'aria-current="page"' : '' %>><%= st %></a><% }) %>
+</nav>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Title</th><th>Status</th><th>Deadline</th><th>Submitted by</th><th>Actions</th></tr></thead>
+  <tbody>
+  <% rows.forEach(function(s){ %>
+    <tr>
+      <td data-label="Title"><a href="/scholarships/<%= s.id %>"><%= s.title %></a></td>
+      <td data-label="Status"><span class="chip status-<%= s.status %>"><%= s.status %></span></td>
+      <td data-label="Deadline"><%= fmtDate(s.deadline) %></td>
+      <td data-label="Submitted by"><%= s.submitter || '—' %></td>
+      <td data-label="Actions" class="actions">
+        <a class="btn small" href="/admin/listings/<%= s.id %>/edit">Edit</a>
+        <% if (s.status === 'pending') { %><form method="post" action="/admin/listings/<%= s.id %>/verify" class="inline"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="back" value="listings"><button class="btn small">Verify</button></form><% } %>
+        <% if (s.status === 'verified') { %><form method="post" action="/admin/listings/<%= s.id %>/deactivate" class="inline"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="back" value="listings"><button class="btn small">Deactivate</button></form><% } %>
+        <% if (s.status === 'inactive') { %><form method="post" action="/admin/listings/<%= s.id %>/reactivate" class="inline"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="back" value="listings"><button class="btn small">Reactivate</button></form><% } %>
+        <form method="post" action="/admin/listings/<%= s.id %>/delete" class="inline" data-confirm="Delete this listing permanently? This cannot be undone."><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-danger small">Delete</button></form>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>
+<%- include('partials/foot') %>

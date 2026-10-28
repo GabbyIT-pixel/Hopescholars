@@ -1,0 +1,18 @@
+<%- include('partials/head') %>
+<div class="page-head"><h1>My scholarship submissions</h1><a class="btn btn-primary" href="/provider/new">Submit a scholarship</a></div>
+<p>Submissions are reviewed by an administrator before students can see them.</p>
+<% if (!rows.length) { %><div class="card center"><p>You have not submitted anything yet.</p></div><% } %>
+<ul class="list big">
+  <% rows.forEach(function(s){ %>
+  <li>
+    <div><a href="/scholarships/<%= s.id %>"><strong><%= s.title %></strong></a><br>
+      <span class="muted">Deadline <%= fmtDate(s.deadline) %></span>
+      <% if (s.status === 'rejected' && s.reject_reason) { %><br><span class="warn-text">Needs changes: <%= s.reject_reason %></span><% } %></div>
+    <div class="row-actions">
+      <span class="chip status-<%= s.status %>"><%= s.status === 'verified' ? 'Live' : s.status === 'pending' ? 'Awaiting review' : s.status === 'rejected' ? 'Needs changes' : 'Inactive' %></span>
+      <% if (s.status === 'pending' || s.status === 'rejected') { %><a class="btn" href="/provider/<%= s.id %>/edit">Edit</a><% } %>
+    </div>
+  </li>
+  <% }) %>
+</ul>
+<%- include('partials/foot') %>

@@ -1,0 +1,14 @@
+<%- include('partials/head') %>
+<section class="narrow">
+  <h1>Log in</h1>
+  <%- include('partials/errors', { errors }) %>
+  <form method="post" action="/login" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Email address <input type="email" name="email" value="<%= form.email || '' %>" autocomplete="username" required></label>
+    <label>Password <input type="password" name="password" autocomplete="current-password" required></label>
+    <button class="btn btn-primary btn-lg" type="submit">Log in</button>
+  </form>
+  <p><a href="/forgot">Forgot your password?</a></p>
+  <p>New here? <a href="/register">Create an account</a></p>
+</section>
+<%- include('partials/foot') %>

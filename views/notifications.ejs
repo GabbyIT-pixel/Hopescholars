@@ -1,0 +1,9 @@
+<%- include('partials/head') %>
+<h1>Alerts</h1>
+<% if (!rows.length) { %><div class="card center"><p>No alerts yet. Save a scholarship and we will remind you before its deadline.</p></div><% } else { %>
+<form method="post" action="/notifications/read"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn" type="submit">Mark all as read</button></form>
+<ul class="list big">
+  <% rows.forEach(function(n){ %><li class="<%= n.is_read ? '' : 'unread' %>"><div><a href="<%= n.link || '#' %>"><%= n.message %></a><br><span class="muted small"><%= fmtTime(n.created_at) %></span></div></li><% }) %>
+</ul>
+<% } %>
+<%- include('partials/foot') %>

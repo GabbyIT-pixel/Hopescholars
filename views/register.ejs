@@ -1,0 +1,22 @@
+<%- include('partials/head') %>
+<section class="narrow">
+  <h1>Create your account</h1>
+  <%- include('partials/errors', { errors }) %>
+  <form method="post" action="/register" class="form" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Full name <input name="name" value="<%= form.name || '' %>" autocomplete="name" required maxlength="80"></label>
+    <label>Email address <input type="email" name="email" value="<%= form.email || '' %>" autocomplete="email" required maxlength="254"></label>
+    <label>I am a
+      <select name="role">
+        <option value="student" <%= form.role !== 'provider' ? 'selected' : '' %>>Student looking for scholarships</option>
+        <option value="provider" <%= form.role === 'provider' ? 'selected' : '' %>>Scholarship provider</option>
+      </select>
+    </label>
+    <label>Password <input type="password" name="password" autocomplete="new-password" required minlength="10" maxlength="128" aria-describedby="pwhelp"></label>
+    <p id="pwhelp" class="help">At least 10 characters with upper-case, lower-case and a number.</p>
+    <label>Confirm password <input type="password" name="confirm" autocomplete="new-password" required></label>
+    <button class="btn btn-primary btn-lg" type="submit">Sign up</button>
+  </form>
+  <p>Already registered? <a href="/login">Log in</a></p>
+</section>
+<%- include('partials/foot') %>

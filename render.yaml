@@ -1,0 +1,18 @@
+# One-click deploy on Render (https://render.com): New + > Blueprint > select this repo.
+services:
+  - type: web
+    name: hope-scholar
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_PASSWORD
+        sync: false          # you will be asked to type this in the Render dashboard
+      - key: SEED_DEMO
+        value: "true"        # demo student/provider accounts + sample scholarships
+      - key: DEMO_MODE
+        value: "true"        # shows password-reset links on screen (no email service)

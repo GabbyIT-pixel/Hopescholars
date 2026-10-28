@@ -1,0 +1,32 @@
+<%- include('partials/head') %>
+<h1>Audit log</h1>
+<p class="muted">Security-relevant events: logins (successful and failed), account changes, and every administrative action on scholarship listings.</p>
+<form method="get" action="/admin/audit" class="filters">
+  <label>Event <select name="action"><option value="">All events</option><%- include('partials/options', { list: actions, selected: action }) %></select></label>
+  <div class="filter-actions"><button class="btn btn-primary">Filter</button></div>
+</form>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>When</th><th>Who</th><th>Event</th><th>Target</th><th>IP</th><th>Detail</th></tr></thead>
+  <tbody>
+  <% rows.forEach(function(r){ %>
+    <tr>
+      <td data-label="When"><%= fmtTime(r.at) %></td>
+      <td data-label="Who"><%= r.actor_email || '—' %></td>
+      <td data-label="Event"><span class="chip <%= /FAIL|DENIED|LOCK|BLOCK|DISABLED|DELETED|REJECT/.test(r.action) ? 'chip-urgent' : 'chip-ok' %>"><%= r.action %></span></td>
+      <td data-label="Target"><%= r.target || '' %></td>
+      <td data-label="IP"><%= r.ip || '' %></td>
+      <td data-label="Detail"><%= r.detail || '' %></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>
+<% if (pages > 1) { %>
+<nav class="pager" aria-label="Pages">
+  <% if (page > 1) { %><a class="btn" href="/admin/audit?action=<%= encodeURIComponent(action) %>&page=<%= page - 1 %>">← Newer</a><% } %>
+  <span>Page <%= page %> of <%= pages %> (<%= total %> events)</span>
+  <% if (page < pages) { %><a class="btn" href="/admin/audit?action=<%= encodeURIComponent(action) %>&page=<%= page + 1 %>">Older →</a><% } %>
+</nav>
+<% } %>
+<%- include('partials/foot') %>

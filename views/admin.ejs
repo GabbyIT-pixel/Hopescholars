@@ -1,0 +1,29 @@
+<%- include('partials/head') %>
+<h1>Administration</h1>
+<section class="stats" aria-label="Overview">
+  <div class="stat"><b><%= stats.pending %></b><span>Awaiting review</span></div>
+  <div class="stat"><b><%= stats.verified %></b><span>Live scholarships</span></div>
+  <div class="stat"><b><%= stats.students %></b><span>Students</span></div>
+  <div class="stat"><b><%= stats.providers %></b><span>Providers</span></div>
+  <div class="stat <%= stats.failed24 > 10 ? 'alert' : '' %>"><b><%= stats.failed24 %></b><span>Failed logins (24h)</span></div>
+</section>
+<div class="page-head"><h2>Review queue</h2><a class="btn" href="/admin/listings/new">Add a scholarship</a></div>
+<% if (!pending.length) { %><div class="card center"><p>All caught up. No listings are waiting for review.</p></div><% } %>
+<% pending.forEach(function(s){ %>
+<article class="card review">
+  <h3><a href="/scholarships/<%= s.id %>"><%= s.title %></a></h3>
+  <p class="muted"><%= s.provider %> · Deadline <%= fmtDate(s.deadline) %> · <a href="<%= s.application_url %>" target="_blank" rel="noopener noreferrer nofollow">Check application link ↗</a></p>
+  <p class="pre"><%= s.description %></p>
+  <p><strong>Eligibility:</strong> <%= s.eligibility %></p>
+  <div class="row-actions">
+    <form method="post" action="/admin/listings/<%= s.id %>/verify"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-primary">Verify &amp; publish</button></form>
+    <form method="post" action="/admin/listings/<%= s.id %>/reject" class="inline-edit">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label class="sr" for="rj<%= s.id %>">Reason for rejecting</label>
+      <input id="rj<%= s.id %>" name="reason" placeholder="Reason for rejecting" required minlength="5" maxlength="300">
+      <button class="btn">Reject</button>
+    </form>
+  </div>
+</article>
+<% }) %>
+<%- include('partials/foot') %>

@@ -1,0 +1,42 @@
+<%- include('partials/head') %>
+<h1>Hello, <%= currentUser.name.split(' ')[0] %></h1>
+<% if (!complete) { %>
+  <div class="card callout">
+    <h2>Complete your profile to get matched</h2>
+    <p>Tell us your education level, field, country and financial need. We use this only to match scholarships to you.</p>
+    <a class="btn btn-primary" href="/profile">Complete profile</a>
+  </div>
+<% } %>
+<section class="stats" aria-label="Your progress">
+  <div class="stat"><b><%= counts.saved %></b><span>Saved</span></div>
+  <div class="stat"><b><%= counts.tracked %></b><span>Tracked</span></div>
+  <div class="stat"><b><%= counts.applied %></b><span>Applied</span></div>
+</section>
+<div class="grid-2">
+  <section>
+    <h2>Upcoming deadlines</h2>
+    <% if (!upcoming.length) { %><p class="muted">Nothing saved yet. <a href="/scholarships">Find scholarships</a> and save the ones you like.</p><% } %>
+    <ul class="list">
+      <% upcoming.forEach(function(s){ %>
+        <li><a href="/scholarships/<%= s.id %>"><%= s.title %></a><span class="chip chip-<%= urgency(s.deadline) %>"><%= daysLabel(s.deadline) %></span></li>
+      <% }) %>
+    </ul>
+  </section>
+  <section>
+    <h2>Latest alerts</h2>
+    <% if (!notes.length) { %><p class="muted">No alerts yet. Reminders appear here before your saved deadlines.</p><% } %>
+    <ul class="list">
+      <% notes.forEach(function(n){ %><li class="<%= n.is_read ? '' : 'unread' %>"><a href="<%= n.link || '/notifications' %>"><%= n.message %></a></li><% }) %>
+    </ul>
+    <p><a href="/notifications">All alerts →</a></p>
+  </section>
+</div>
+<section>
+  <h2>Recommended for you</h2>
+  <% if (!recs.length) { %><p class="muted"><%= complete ? 'No strong matches right now. Check back as new scholarships are added.' : 'Complete your profile to see personalised recommendations.' %></p><% } %>
+  <div class="cards">
+    <% recs.forEach(function(r){ %><%- include('partials/card', { s: r.s, m: r.m }) %><% }) %>
+  </div>
+  <% if (recs.length) { %><p><a href="/scholarships">Browse all scholarships →</a></p><% } %>
+</section>
+<%- include('partials/foot') %>

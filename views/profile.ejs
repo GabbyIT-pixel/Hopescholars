@@ -1,0 +1,23 @@
+<%- include('partials/head') %>
+<section class="narrow">
+  <h1>My profile</h1>
+  <p>We use these details only to match scholarships to you. You can change them at any time.</p>
+  <%- include('partials/errors', { errors }) %>
+  <form method="post" action="/profile" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>Education level
+      <select name="education_level" required><option value="">Choose…</option><%- include('partials/options', { list: v.LEVELS, selected: profile.education_level }) %></select></label>
+    <label>Field of study
+      <select name="field_of_study" required><option value="">Choose…</option><%- include('partials/options', { list: v.FIELDS.slice(1), selected: profile.field_of_study }) %></select></label>
+    <label>Country
+      <select name="country" required><option value="">Choose…</option><%- include('partials/options', { list: v.COUNTRIES.slice(1), selected: profile.country }) %></select></label>
+    <label>Town or camp (optional)
+      <input name="location" maxlength="100" value="<%= profile.location || '' %>"></label>
+    <label>Financial need
+      <select name="financial_need" required><option value="">Choose…</option><%- include('partials/options', { list: v.NEEDS, selected: profile.financial_need }) %></select></label>
+    <label>Academic standing
+      <select name="academic_standing"><option value="">Choose…</option><%- include('partials/options', { list: v.STANDINGS, selected: profile.academic_standing }) %></select></label>
+    <button class="btn btn-primary btn-lg" type="submit">Save profile</button>
+  </form>
+</section>
+<%- include('partials/foot') %>

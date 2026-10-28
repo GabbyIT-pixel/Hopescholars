@@ -1,0 +1,24 @@
+<%- include('partials/head') %>
+<h1>User accounts</h1>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last login</th><th>Action</th></tr></thead>
+  <tbody>
+  <% rows.forEach(function(u){ %>
+    <tr>
+      <td data-label="Name"><%= u.name %></td>
+      <td data-label="Email"><%= u.email %></td>
+      <td data-label="Role"><%= u.role %></td>
+      <td data-label="Status"><%= !u.active ? 'Disabled' : (u.locked_until && u.locked_until > now) ? 'Locked' : 'Active' %></td>
+      <td data-label="Last login"><%= u.last_login_at ? fmtTime(u.last_login_at) : 'Never' %></td>
+      <td data-label="Action">
+        <% if (u.id !== currentUser.id) { %>
+        <form method="post" action="/admin/users/<%= u.id %>/toggle" class="inline"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn small"><%= u.active ? 'Disable' : 'Enable' %></button></form>
+        <% } else { %><span class="muted small">You</span><% } %>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>
+<%- include('partials/foot') %>

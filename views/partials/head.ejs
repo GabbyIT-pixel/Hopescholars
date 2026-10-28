@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · Hope Scholar</title>
+  <meta name="description" content="Hope Scholar helps students find, match, save and track scholarships in one place.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/" aria-label="Hope Scholar home">
+      <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#c2410c"/><path d="M16 7l10 5-10 5-10-5 10-5z" fill="#fff"/><path d="M9 15.5v5c0 1.7 3.1 3.5 7 3.5s7-1.8 7-3.5v-5l-7 3.5-7-3.5z" fill="#fde68a"/></svg>
+      <span>Hope Scholar</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav" data-nav-toggle>Menu</button>
+    <nav id="nav" class="nav" aria-label="Main">
+      <a href="/scholarships" <%- path.startsWith('/scholarships') ? 'aria-current="page"' : '' %>>Find scholarships</a>
+      <% if (currentUser && currentUser.role === 'student') { %>
+        <a href="/dashboard" <%- path === '/dashboard' ? 'aria-current="page"' : '' %>>Dashboard</a>
+        <a href="/saved" <%- path === '/saved' ? 'aria-current="page"' : '' %>>Saved</a>
+        <a href="/applications" <%- path === '/applications' ? 'aria-current="page"' : '' %>>Applications</a>
+        <a href="/notifications" <%- path === '/notifications' ? 'aria-current="page"' : '' %>>Alerts<% if (unread) { %> <span class="badge" aria-label="<%= unread %> unread"><%= unread %></span><% } %></a>
+      <% } else if (currentUser && currentUser.role === 'provider') { %>
+        <a href="/provider" <%- path.startsWith('/provider') ? 'aria-current="page"' : '' %>>My submissions</a>
+        <a href="/notifications" <%- path === '/notifications' ? 'aria-current="page"' : '' %>>Alerts<% if (unread) { %> <span class="badge"><%= unread %></span><% } %></a>
+      <% } else if (currentUser && currentUser.role === 'admin') { %>
+        <a href="/admin" <%- path === '/admin' ? 'aria-current="page"' : '' %>>Review queue</a>
+        <a href="/admin/listings" <%- path.startsWith('/admin/listings') ? 'aria-current="page"' : '' %>>Listings</a>
+        <a href="/admin/users" <%- path === '/admin/users' ? 'aria-current="page"' : '' %>>Users</a>
+        <a href="/admin/audit" <%- path === '/admin/audit' ? 'aria-current="page"' : '' %>>Audit log</a>
+      <% } %>
+      <span class="nav-spacer"></span>
+      <% if (currentUser) { %>
+        <a href="/account" <%- path === '/account' ? 'aria-current="page"' : '' %>><%= currentUser.name.split(' ')[0] %></a>
+        <form method="post" action="/logout" class="inline"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-ghost" type="submit">Log out</button></form>
+      <% } else { %>
+        <a href="/login">Log in</a>
+        <a class="btn btn-primary" href="/register">Sign up free</a>
+      <% } %>
+    </nav>
+  </div>
+</header>
+<main id="main" class="wrap">
+<% if (flash) { %><div class="flash flash-<%= flash.type %>" role="status"><%= flash.message %></div><% } %>

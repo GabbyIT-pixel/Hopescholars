@@ -1,0 +1,15 @@
+<article class="card sch">
+  <div class="sch-top">
+    <span class="chip chip-<%= urgency(s.deadline) %>"><%= daysLabel(s.deadline) %></span>
+    <% if (m) { %><span class="match" title="How well this matches your profile"><%= m.score %>% match</span><% } %>
+  </div>
+  <h3><a href="/scholarships/<%= s.id %>"><%= s.title %></a></h3>
+  <p class="muted"><%= s.provider %></p>
+  <ul class="tags">
+    <li><%= s.education_level %></li><li><%= s.field_of_study %></li><li><%= s.country === 'Any' ? 'Open to all countries' : s.country %></li>
+    <% if (s.need_based) { %><li>Need-based</li><% } %>
+  </ul>
+  <p class="meta"><strong>Deadline:</strong> <%= fmtDate(s.deadline) %><% if (s.award_value) { %> · <strong>Award:</strong> <%= s.award_value %><% } %></p>
+  <% if (m && m.reasons.length) { %><p class="why">Why: <%= m.reasons.slice(0, 2).join(' · ') %></p><% } %>
+  <a class="link-more" href="/scholarships/<%= s.id %>">View details →</a>
+</article>
