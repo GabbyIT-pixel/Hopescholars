@@ -16,3 +16,5 @@ services:
         value: "true"        # demo student/provider accounts + sample scholarships
       - key: DEMO_MODE
         value: "true"        # shows password-reset links on screen (no email service)
+      - key: NODE_VERSION
+        value: "22"
