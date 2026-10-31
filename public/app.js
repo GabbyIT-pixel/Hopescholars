@@ -8,6 +8,52 @@
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
   }
+  // Show / hide password buttons.
+  document.querySelectorAll('.pw').forEach(function (wrap) {
+    var input = wrap.querySelector('input[type=password]');
+    if (!input) return;
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'pw-toggle'; b.textContent = 'Show'; b.setAttribute('aria-label', 'Show password');
+    b.addEventListener('click', function () {
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      b.textContent = show ? 'Hide' : 'Show';
+      b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    });
+    wrap.appendChild(b);
+  });
+  // Password strength hint on sign-up.
+  var meter = document.querySelector('[data-strength]');
+  var pw = document.getElementById('password');
+  if (meter && pw) {
+    var bar = meter.querySelector('[data-strength-bar]');
+    var txt = meter.querySelector('[data-strength-text]');
+    pw.addEventListener('input', function () {
+      var v = pw.value, n = 0;
+      if (v.length >= 10) n++;
+      if (/[a-z]/.test(v) && /[A-Z]/.test(v)) n++;
+      if (/[0-9]/.test(v)) n++;
+      if (v.length >= 14 || /[^A-Za-z0-9]/.test(v)) n++;
+      meter.hidden = v.length === 0;
+      bar.className = 'bar-fill pct-' + (n * 25);
+      bar.setAttribute('data-level', n);
+      txt.textContent = ['Too weak', 'Weak', 'Fair', 'Good', 'Strong'][n];
+    });
+  }
+  // One-tap demo logins.
+  document.querySelectorAll('[data-fill-email]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var e = document.getElementById('email'), p = document.getElementById('password');
+      if (e && p) { e.value = b.getAttribute('data-fill-email'); p.value = b.getAttribute('data-fill-password'); p.focus(); }
+    });
+  });
+  // Dismissible notices.
+  document.querySelectorAll('.flash').forEach(function (f) {
+    var x = document.createElement('button');
+    x.type = 'button'; x.className = 'flash-close'; x.setAttribute('aria-label', 'Dismiss message'); x.textContent = '✕';
+    x.addEventListener('click', function () { f.remove(); });
+    f.appendChild(x);
+  });
   document.querySelectorAll('form[data-confirm]').forEach(function (f) {
     f.addEventListener('submit', function (e) {
       if (!window.confirm(f.getAttribute('data-confirm'))) e.preventDefault();
@@ -17,7 +63,7 @@
   document.querySelectorAll('form').forEach(function (f) {
     f.addEventListener('submit', function () {
       var b = f.querySelector('button[type=submit], button:not([type])');
-      if (b && !f.hasAttribute('data-confirm')) setTimeout(function () { b.disabled = true; }, 0);
+      if (b && !f.hasAttribute('data-confirm') && !f.hasAttribute('data-keep')) setTimeout(function () { b.disabled = true; if (b.tagName === 'BUTTON' && !b.dataset.label) { b.dataset.label = b.textContent; b.textContent = 'Please wait…'; } }, 0);
     });
   });
 })();

@@ -52,7 +52,7 @@ Scholarships titled **"Sample: ..."** are demonstration data. Others are real pr
 | SRS requirement | Where to see it |
 |---|---|
 | **FR 1.1** Student registration | `/register` |
-| **FR 1.2** Secure login | `/login` (hashed passwords, lockout, audit) |
+| **FR 1.2** Secure login | `/login` (hashed passwords, lockout, audit), plus optional **Continue with Google** |
 | **FR 1.3** Update account, secure password reset | `/account`, `/forgot` → `/reset/<token>` |
 | **FR 2.1** Create/update profile | `/profile` (level, field, country, need, standing) |
 | **FR 3.1** Keyword search | `/scholarships` search box |
@@ -67,6 +67,7 @@ Scholarships titled **"Sample: ..."** are demonstration data. Others are real pr
 | **FR 6.2** Listing verification | `/admin` review queue (verify or reject with reason) |
 | Provider submits listings (use case diagram) | `/provider`, `/provider/new` |
 | Review audit log (use case diagram) | `/admin/audit` |
+| Help desk (extra) | Floating **Help** button on every page and `/help` page: instant answers about the platform, live answers (open scholarships, your own deadlines) |
 | **NFR 3/4/5/10** usability, responsive, accessible | mobile-first CSS, skip link, labels, focus styles, no JavaScript required |
 | **NFR 1** performance | server-rendered light pages, SQLite indexes |
 
@@ -86,13 +87,33 @@ Implemented to match SRS NFR 9 and NFR 12 to 19 and the component diagram:
 - **Data minimisation**: only the profile fields needed for matching are collected.
 - Pages are served with `Cache-Control: no-store`.
 
+## Sign in with Google (optional)
+
+The "Continue with Google" button appears only when you set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
+
+1. Open [Google Cloud Console](https://console.cloud.google.com/apis/credentials) → **Create credentials → OAuth client ID** → type **Web application** (set up the consent screen first if asked: External, add your email as a test user).
+2. Add **Authorised redirect URIs**:
+   - `http://localhost:3000/auth/google/callback` (local)
+   - `https://<your-app>.onrender.com/auth/google/callback` (deployed)
+3. Local: copy the values into a `.env`-style shell export before `npm start`:
+   ```bash
+   GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com GOOGLE_CLIENT_SECRET=xxxx npm start
+   ```
+   Render: **Environment** tab → add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` → save (it redeploys).
+
+Security: authorization-code flow with PKCE (S256), `state` and `nonce` checks, id-token issuer/audience/expiry/verified-email checks, HttpOnly short-lived OAuth cookie. Administrator accounts cannot use Google. If someone signs in with Google using an email that already has a password account, the accounts are linked and the old password is disabled (stops anyone who pre-registered that email).
+
+## Help desk assistant
+
+Every page has a **Help** button (and `/help` lists common questions). It works with no setup using a built-in knowledge base and live data (open scholarships, a signed-in student's own deadlines and profile status). Optional: set `ANTHROPIC_API_KEY` and the Claude API writes the replies, restricted to the same knowledge base; on any error it falls back to the built-in answer. Questions are limited to 300 characters and 12 per minute per connection; answers are shown as plain text.
+
 ## Tests
 
 ```bash
 npm test
 ```
 
-19 automated tests cover hashing, weak-password rejection, CSRF, session rotation, generic login errors, lockout, RBAC, SQL injection, XSS escaping, security headers, password-reset rules, the matching engine, the student journey (profile → search → save → remind → track) and the provider → admin verification flow.
+25 automated tests cover hashing, weak-password rejection, CSRF, session rotation, generic login errors, lockout, RBAC, SQL injection, XSS escaping, security headers, password-reset rules, the matching engine, the student journey (profile → search → save → remind → track) and the provider → admin verification flow.
 
 ## Deploy
 
@@ -126,11 +147,12 @@ hope-scholar/
 │   ├── config.js          # settings from environment variables
 │   ├── db.js              # SQLite schema
 │   ├── security.js        # hashing, sessions, CSRF, RBAC, audit log
+│   ├── helpdesk.js        # help desk assistant (knowledge base + optional AI)
 │   ├── validate.js        # input validation and allowed values
 │   ├── matching.js        # scholarship matching engine
 │   ├── services.js        # search, recommendations, reminders
 │   ├── seed.js            # admin, demo accounts, sample scholarships
-│   └── routes/            # auth, student, scholarships, provider, admin
+│   └── routes/            # auth, google, help, student, scholarships, provider, admin
 ├── views/                 # EJS templates (auto-escaped)
 ├── public/                # CSS, small progressive-enhancement script, icon
 ├── test/                  # automated tests

@@ -4,6 +4,11 @@
     <p class="eyebrow">For students from underserved communities</p>
     <h1>Find the scholarship that fits <em>you</em>, before the deadline passes.</h1>
     <p class="lead">Scholarship information is scattered across hundreds of websites. Hope Scholar brings it together: search, match to your profile, save, get reminders and track every application in one place.</p>
+    <form method="get" action="/scholarships" class="hero-search" role="search">
+      <label class="sr" for="hero-q">Search scholarships</label>
+      <input id="hero-q" type="search" name="q" placeholder="Search by topic, e.g. health, engineering, women" maxlength="80">
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
     <p class="cta">
       <a class="btn btn-primary btn-lg" href="/register">Create your free account</a>
       <a class="btn btn-lg" href="/scholarships">Browse <%= count %> open scholarships</a>
@@ -16,6 +21,12 @@
     <li><b>Remember</b><span>Get a reminder before each deadline.</span></li>
     <li><b>Track</b><span>Follow every application from Preparing to Accepted.</span></li>
   </ol>
+</section>
+<section class="steps-help card">
+  <div><h2>New here? Get started in 3 steps</h2>
+    <ol class="mini-steps"><li><b>Sign up</b> with your email<%= googleEnabled ? ' or Google' : '' %>.</li><li><b>Fill your profile</b> so we can match you.</li><li><b>Save</b> scholarships and we remind you before each deadline.</li></ol>
+  </div>
+  <div><h2>Questions?</h2><p>Our help desk answers questions about the platform instantly, any time.</p><a class="btn" href="/help">Ask the help desk</a></div>
 </section>
 <section class="trust">
   <div><h2>Built for low-bandwidth and mobile</h2><p>Light pages that work on a basic smartphone and a slow connection. No app download needed.</p></div>

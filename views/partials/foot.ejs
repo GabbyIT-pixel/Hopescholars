@@ -5,6 +5,22 @@
     <p class="muted">Your data is protected: passwords are hashed, connections use HTTPS, and we only collect what matching needs.</p>
   </div>
 </footer>
+<a class="help-fab" href="/help" data-help-open aria-label="Open help desk"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.9 14.5L2 22l5.7-1.1A10 10 0 1 0 12 2zm1 15h-2v-2h2v2zm1.8-6.1-.9.9c-.6.6-.9 1-.9 2.1h-2v-.5c0-1 .4-1.9 1.1-2.6l1.2-1.2a1.6 1.6 0 1 0-2.7-1.1H8.6a3.4 3.4 0 1 1 6.2 2.4z"/></svg><span>Help</span></a>
+<section class="help-panel" id="help-panel" role="dialog" aria-label="Help desk assistant" hidden>
+  <header><strong>Help desk</strong><button type="button" class="btn-ghost" data-help-close aria-label="Close help desk">✕</button></header>
+  <div class="help-log" id="help-log" aria-live="polite">
+    <div class="msg bot">Hi! Ask me anything about Hope Scholar, or pick a question.</div>
+  </div>
+  <div class="help-suggest" id="help-suggest"></div>
+  <form class="help-form" id="help-form" method="post" action="/help/ask" data-keep>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label class="sr" for="help-q">Your question</label>
+    <input id="help-q" name="q" maxlength="300" placeholder="Type your question…" autocomplete="off" required>
+    <button class="btn btn-primary" type="submit">Send</button>
+  </form>
+  <p class="small muted help-note">Automated assistant. Always confirm scholarship details on the provider's website.</p>
+</section>
 <script src="/app.js" defer></script>
+<script src="/help.js" defer></script>
 </body>
 </html>

@@ -16,6 +16,14 @@ module.exports = {
   maxFailedLogins: 5,
   lockMinutes: 15,
   resetTokenMinutes: 30,
+  // Public address of the site (used for the Google redirect URI). Render provides RENDER_EXTERNAL_URL automatically.
+  publicUrl: (env.PUBLIC_URL || env.RENDER_EXTERNAL_URL || `http://localhost:${Number(env.PORT) || 3000}`).replace(/\/+$/, ''),
+  // Google sign-in is switched on only when both values are set.
+  googleClientId: env.GOOGLE_CLIENT_ID || '',
+  googleClientSecret: env.GOOGLE_CLIENT_SECRET || '',
+  // Optional: let the help desk use the Claude API. Without a key it uses the built-in knowledge base.
+  helpdeskApiKey: env.ANTHROPIC_API_KEY || '',
+  helpdeskModel: env.HELPDESK_MODEL || 'claude-haiku-5-5',
   bcryptRounds: isProd ? 12 : 10,
   pageSize: 9,
 };

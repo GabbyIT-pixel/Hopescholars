@@ -15,6 +15,7 @@ router.get('/dashboard', ...student, (req, res) => {
   const counts = db.prepare(`SELECT
     (SELECT COUNT(*) FROM saved WHERE user_id = @u) saved,
     (SELECT COUNT(*) FROM applications WHERE user_id = @u) tracked,
+    (SELECT COUNT(*) FROM applications WHERE user_id = @u AND status NOT IN ('Saved','Interested')) progressed,
     (SELECT COUNT(*) FROM applications WHERE user_id = @u AND status = 'Applied') applied`).get({ u: req.user.id });
   const notes = db.prepare('SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 3').all(req.user.id);
   res.render('dashboard', {

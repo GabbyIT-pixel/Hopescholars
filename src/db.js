@@ -112,6 +112,10 @@ CREATE INDEX IF NOT EXISTS idx_audit_at ON audit_log(at DESC);
 function openDb(path) {
   const db = new DatabaseSync(path);
   db.exec(SCHEMA);
+  // Light migration: Google sign-in stores Google's stable account id (never used for anything else).
+  const cols = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
+  if (!cols.includes('google_sub')) db.exec('ALTER TABLE users ADD COLUMN google_sub TEXT');
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google ON users(google_sub) WHERE google_sub IS NOT NULL');
   // db.transaction(fn) -> function that runs fn atomically (BEGIN / COMMIT / ROLLBACK)
   db.transaction = (fn) => (...args) => {
     db.exec('BEGIN IMMEDIATE');

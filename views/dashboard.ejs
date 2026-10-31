@@ -1,10 +1,18 @@
 <%- include('partials/head') %>
 <h1>Hello, <%= currentUser.name.split(' ')[0] %></h1>
-<% if (!complete) { %>
-  <div class="card callout">
-    <h2>Complete your profile to get matched</h2>
-    <p>Tell us your education level, field, country and financial need. We use this only to match scholarships to you.</p>
-    <a class="btn btn-primary" href="/profile">Complete profile</a>
+<% var steps = [
+  { done: complete, label: 'Complete your profile', href: '/profile', cta: 'Open profile' },
+  { done: counts.saved > 0 || counts.tracked > 0, label: 'Save your first scholarship', href: '/scholarships', cta: 'Find scholarships' },
+  { done: counts.progressed > 0, label: 'Update an application status (for example Preparing)', href: '/applications', cta: 'Open tracker' },
+  { done: counts.applied > 0, label: 'Mark an application as Applied', href: '/applications', cta: 'Open tracker' }
+]; var doneN = steps.filter(function(x){ return x.done; }).length; %>
+<% if (doneN < steps.length) { %>
+  <div class="card callout checklist">
+    <div class="page-head"><h2>Get started <span class="muted small">· <%= doneN %> of <%= steps.length %> done</span></h2></div>
+    <div class="bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="<%= steps.length %>" aria-valuenow="<%= doneN %>"><div class="bar-fill pct-<%= Math.round(doneN / steps.length * 4) * 25 %>" data-pct="<%= Math.round(doneN / steps.length * 4) * 25 %>"></div></div>
+    <ul class="todo">
+      <% steps.forEach(function(st){ %><li class="<%= st.done ? 'done' : '' %>"><span class="tick" aria-hidden="true"><%= st.done ? '✔' : '○' %></span> <span><%= st.label %><% if (st.done) { %><span class="sr"> (done)</span><% } %></span><% if (!st.done) { %> <a class="btn small" href="<%= st.href %>"><%= st.cta %></a><% } %></li><% }) %>
+    </ul>
   </div>
 <% } %>
 <section class="stats" aria-label="Your progress">

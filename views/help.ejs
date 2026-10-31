@@ -1,0 +1,35 @@
+<%- include('partials/head') %>
+<section class="help-page">
+  <h1>How can we help?</h1>
+  <p class="lead">Ask about anything on Hope Scholar. Answers appear instantly<%= helpAi ? ' (written by an AI assistant that only uses our help content)' : '' %>.</p>
+  <form method="post" action="/help/ask" class="ask" role="search">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label class="sr" for="q">Your question</label>
+    <input id="q" name="q" value="<%= asked %>" maxlength="300" placeholder="e.g. How do I save a scholarship?" autocomplete="off" required>
+    <button class="btn btn-primary" type="submit">Ask</button>
+  </form>
+  <% if (result) { %>
+    <div class="card answer" role="status">
+      <p class="muted small">You asked: <%= asked %></p>
+      <p><%= result.answer %></p>
+      <% if (result.links && result.links.length) { %><p class="row-actions"><% result.links.forEach(function(l){ %><a class="btn small" href="<%= l[1] %>"><%= l[0] %></a><% }) %></p><% } %>
+    </div>
+  <% } %>
+  <div class="chips-row"><span class="muted small">Try:</span>
+    <% suggestions.forEach(function(s){ %>
+      <form method="post" action="/help/ask" class="inline"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><input type="hidden" name="q" value="<%= s %>"><button class="chip-btn" type="submit"><%= s %></button></form>
+    <% }) %>
+  </div>
+  <h2>Common questions</h2>
+  <% groups.forEach(function(g){ %>
+    <h3 class="faq-title"><%= g.title %></h3>
+    <% g.items.forEach(function(e){ %>
+      <details class="faq"><summary><%= e.q %></summary>
+        <p><%= e.a %></p>
+        <% if (e.links) { %><p class="row-actions"><% e.links.forEach(function(l){ %><a class="btn small" href="<%= l[1] %>"><%= l[0] %></a><% }) %></p><% } %>
+      </details>
+    <% }) %>
+  <% }) %>
+  <p class="muted small">Assistant replies are general guidance about the platform. For scholarship rules and deadlines, always check the provider's official website.</p>
+</section>
+<%- include('partials/foot') %>

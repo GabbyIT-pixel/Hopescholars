@@ -28,6 +28,8 @@ function createApp(db) {
   };
   app.locals.urgency = (iso) => { const d = v.daysUntil(iso); return d < 0 ? 'closed' : d <= 7 ? 'urgent' : d <= 30 ? 'soon' : 'ok'; };
   app.locals.demoMode = config.demoMode;
+  app.locals.googleEnabled = !!(config.googleClientId && config.googleClientSecret);
+  app.locals.helpAi = !!config.helpdeskApiKey;
 
   // ---- security headers (strict CSP: no inline scripts, same-origin only) ----
   app.use(helmet({
@@ -73,10 +75,13 @@ function createApp(db) {
   app.use('/register', limiter(15, 60));
   app.use('/forgot', limiter(10, 60));
   app.use('/reset', limiter(20, 60));
+  app.use('/auth', limiter(30, 15));
 
   app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
   app.use(require('./routes/auth'));
+  app.use(require('./routes/google'));
+  app.use(require('./routes/help'));
   app.use(require('./routes/student'));
   app.use(require('./routes/scholarships'));
   app.use(require('./routes/provider'));

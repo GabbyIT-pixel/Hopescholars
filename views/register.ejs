@@ -1,10 +1,16 @@
 <%- include('partials/head') %>
 <section class="narrow">
-  <h1>Create your account</h1>
+  <h1>Create your free account</h1>
+  <p class="muted">It takes about a minute. We only ask for what we need to match scholarships to you.</p>
   <%- include('partials/errors', { errors }) %>
+  <% if (googleEnabled) { %>
+    <a class="btn btn-google btn-lg block" href="/auth/google?role=student"><%- include('partials/google-icon') %> Sign up with Google</a>
+    <p class="small center"><a href="/auth/google?role=provider">Scholarship provider? Sign up with Google here</a></p>
+    <p class="divider"><span>or sign up with email</span></p>
+  <% } %>
   <form method="post" action="/register" class="form" novalidate>
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <label>Full name <input name="name" value="<%= form.name || '' %>" autocomplete="name" required maxlength="80"></label>
+    <label>Full name <input name="name" value="<%= form.name || '' %>" autocomplete="name" required maxlength="80" autofocus></label>
     <label>Email address <input type="email" name="email" value="<%= form.email || '' %>" autocomplete="email" required maxlength="254"></label>
     <label>I am a
       <select name="role">
@@ -12,9 +18,10 @@
         <option value="provider" <%= form.role === 'provider' ? 'selected' : '' %>>Scholarship provider</option>
       </select>
     </label>
-    <label>Password <input type="password" name="password" autocomplete="new-password" required minlength="10" maxlength="128" aria-describedby="pwhelp"></label>
+    <label>Password <span class="pw"><input id="password" type="password" name="password" autocomplete="new-password" required minlength="10" maxlength="128" aria-describedby="pwhelp"></span></label>
+    <div class="strength" data-strength hidden><div class="bar-track"><div class="bar-fill" data-strength-bar></div></div><span class="small" data-strength-text></span></div>
     <p id="pwhelp" class="help">At least 10 characters with upper-case, lower-case and a number.</p>
-    <label>Confirm password <input type="password" name="confirm" autocomplete="new-password" required></label>
+    <label>Confirm password <span class="pw"><input type="password" name="confirm" autocomplete="new-password" required></span></label>
     <button class="btn btn-primary btn-lg" type="submit">Sign up</button>
   </form>
   <p>Already registered? <a href="/login">Log in</a></p>

@@ -148,6 +148,6 @@ function makeAudit(db) {
 }
 
 module.exports = {
-  now, sha256, randomToken, safeEqual, passwordProblems, hashPassword, verifyPassword, DUMMY_HASH,
+  now, sha256, randomToken, safeEqual, parseCookies, cookieOptions, passwordProblems, hashPassword, verifyPassword, DUMMY_HASH,
   sessionMiddleware, csrfProtection, requireLogin, requireRole, makeAudit,
 };

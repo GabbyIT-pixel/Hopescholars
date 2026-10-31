@@ -33,6 +33,7 @@
         <a href="/admin/users" <%- path === '/admin/users' ? 'aria-current="page"' : '' %>>Users</a>
         <a href="/admin/audit" <%- path === '/admin/audit' ? 'aria-current="page"' : '' %>>Audit log</a>
       <% } %>
+      <a href="/help" <%- path === '/help' ? 'aria-current="page"' : '' %>>Help</a>
       <span class="nav-spacer"></span>
       <% if (currentUser) { %>
         <a href="/account" <%- path === '/account' ? 'aria-current="page"' : '' %>><%= currentUser.name.split(' ')[0] %></a>
