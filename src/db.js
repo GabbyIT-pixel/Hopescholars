@@ -115,6 +115,21 @@ function openDb(path) {
   // Light migration: Google sign-in stores Google's stable account id (never used for anything else).
   const cols = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
   if (!cols.includes('google_sub')) db.exec('ALTER TABLE users ADD COLUMN google_sub TEXT');
+  const addColumn = (table, col, ddl) => {
+    const have = db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name);
+    if (!have.includes(col)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${ddl}`);
+  };
+  // Accurate-data fields: where a listing came from, when it was last checked against the official site, honest deadline info.
+  addColumn('scholarships', 'source_url', 'TEXT');
+  addColumn('scholarships', 'last_verified', 'TEXT');
+  addColumn('scholarships', 'deadline_type', "TEXT NOT NULL DEFAULT 'fixed'");
+  addColumn('scholarships', 'deadline_note', 'TEXT');
+  addColumn('scholarships', 'eligible_countries', 'TEXT');
+  addColumn('scholarships', 'study_in', "TEXT NOT NULL DEFAULT ''");
+  addColumn('scholarships', 'origin', "TEXT NOT NULL DEFAULT 'submitted'");
+  addColumn('scholarships', 'link_status', 'TEXT');
+  addColumn('scholarships', 'link_checked_at', 'INTEGER');
+  addColumn('saved', 'my_deadline', 'TEXT');
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google ON users(google_sub) WHERE google_sub IS NOT NULL');
   // db.transaction(fn) -> function that runs fn atomically (BEGIN / COMMIT / ROLLBACK)
   db.transaction = (fn) => (...args) => {

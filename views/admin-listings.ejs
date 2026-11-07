@@ -1,18 +1,25 @@
 <%- include('partials/head') %>
-<div class="page-head"><h1>Manage listings</h1><a class="btn btn-primary" href="/admin/listings/new">Add a scholarship</a></div>
+<div class="page-head"><h1>Manage listings</h1>
+  <div class="row-actions">
+    <form method="post" action="/admin/links/check" class="inline" data-keep><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn" type="submit">Check official links</button></form>
+    <a class="btn btn-primary" href="/admin/listings/new">Add a scholarship</a>
+  </div></div>
 <nav class="tabs" aria-label="Filter by status">
   <a href="/admin/listings" <%- !status ? 'aria-current="page"' : '' %>>All</a>
   <% ['pending','verified','rejected','inactive'].forEach(function(st){ %><a href="/admin/listings?status=<%= st %>" <%- status === st ? 'aria-current="page"' : '' %>><%= st %></a><% }) %>
 </nav>
 <div class="table-wrap">
 <table>
-  <thead><tr><th>Title</th><th>Status</th><th>Deadline</th><th>Submitted by</th><th>Actions</th></tr></thead>
+  <thead><tr><th>Title</th><th>Status</th><th>Deadline</th><th>Official link</th><th>Submitted by</th><th>Actions</th></tr></thead>
   <tbody>
   <% rows.forEach(function(s){ %>
     <tr>
       <td data-label="Title"><a href="/scholarships/<%= s.id %>"><%= s.title %></a></td>
       <td data-label="Status"><span class="chip status-<%= s.status %>"><%= s.status %></span></td>
       <td data-label="Deadline"><%= fmtDate(s.deadline) %></td>
+      <td data-label="Official link"><a href="<%= s.application_url %>" target="_blank" rel="noopener noreferrer nofollow"><%= host(s.application_url) %> ↗</a><br>
+        <% if (s.link_status) { %><span class="chip link-<%= s.link_status %>"><%= s.link_status === 'ok' ? 'Link works' : (s.link_status === 'blocked' ? 'Open manually' : 'Broken') %></span><% } else { %><span class="muted small">Not checked</span><% } %>
+        <% if (s.last_verified) { %><br><span class="muted small">Verified <%= fmtDate(s.last_verified) %></span><% } %></td>
       <td data-label="Submitted by"><%= s.submitter || '—' %></td>
       <td data-label="Actions" class="actions">
         <a class="btn small" href="/admin/listings/<%= s.id %>/edit">Edit</a>

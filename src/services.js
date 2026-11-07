@@ -1,4 +1,5 @@
 'use strict';
+const mailer = require('./mailer');
 const v = require('./validate');
 const { match } = require('./matching');
 const sec = require('./security');
@@ -17,12 +18,16 @@ function searchScholarships(db, f, page, pageSize) {
   const where = ["status = 'verified'", 'deadline >= @today'];
   const p = { today: v.today() };
   if (f.q) {
-    where.push("(title LIKE @q ESCAPE '\\' OR provider LIKE @q ESCAPE '\\' OR description LIKE @q ESCAPE '\\')");
+    where.push("(title LIKE @q ESCAPE '\\' OR provider LIKE @q ESCAPE '\\' OR description LIKE @q ESCAPE '\\' OR study_in LIKE @q ESCAPE '\\' OR eligibility LIKE @q ESCAPE '\\')");
     p.q = '%' + f.q.replace(/[\\%_]/g, '\\$&') + '%';
   }
   if (f.field) { where.push("(field_of_study = @field OR field_of_study = 'Any')"); p.field = f.field; }
   if (f.level) { where.push("(education_level = @level OR education_level = 'Any')"); p.level = f.level; }
-  if (f.country) { where.push("(country = @country OR country = 'Any')"); p.country = f.country; }
+  if (f.country) {
+    where.push("((country = @country OR country = 'Any') AND (eligible_countries IS NULL OR eligible_countries = '' OR (',' || eligible_countries || ',') LIKE '%,' || @country || ',%'))");
+    p.country = f.country;
+  }
+  if (f.study) { where.push("(',' || study_in || ',') LIKE '%,' || @study || ',%'"); p.study = f.study; }
   if (f.need) where.push('need_based = 1');
   if (f.within) {
     where.push('deadline <= @limit');
@@ -33,6 +38,14 @@ function searchScholarships(db, f, page, pageSize) {
   const rows = db.prepare(`SELECT * FROM scholarships WHERE ${where.join(' AND ')} ORDER BY ${order} LIMIT @lim OFFSET @off`)
     .all({ ...p, lim: pageSize, off: (page - 1) * pageSize });
   return { rows, total };
+}
+
+/** Countries (or regions) where open scholarships let you study, most listings first. */
+function studyOptions(db) {
+  const rows = db.prepare("SELECT study_in FROM scholarships WHERE status = 'verified' AND deadline >= ? AND study_in != ''").all(v.today());
+  const n = new Map();
+  for (const r of rows) for (const c of r.study_in.split(',')) if (c) n.set(c, (n.get(c) || 0) + 1);
+  return [...n.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
 
 /** Top matches for a student (FR 4.1, 4.2): profile + interaction history. */
@@ -50,18 +63,24 @@ function recommendations(db, userId, limit = 6) {
 
 /** Deadline reminders (FR 5.2): create an in-app notification once per saved scholarship. */
 function runReminders(db) {
-  const rows = db.prepare(`SELECT sv.user_id, sv.scholarship_id, sv.remind_days, s.title, s.deadline FROM saved sv
-    JOIN scholarships s ON s.id = sv.scholarship_id
-    WHERE sv.reminder_sent = 0 AND s.status = 'verified' AND s.deadline >= ?`).all(v.today());
+  // The date used is the student's own (copied from the official site) or the listing's fixed deadline.
+  // Programmes without a published date only produce reminders when the student entered one.
+  const rows = db.prepare(`SELECT sv.user_id, sv.scholarship_id, sv.remind_days, s.title, (SELECT email FROM users WHERE id = sv.user_id) email,
+      CASE WHEN sv.my_deadline IS NOT NULL THEN sv.my_deadline WHEN s.deadline_type = 'fixed' THEN s.deadline END AS due
+    FROM saved sv JOIN scholarships s ON s.id = sv.scholarship_id
+    WHERE sv.reminder_sent = 0 AND s.status = 'verified'`).all();
   const ins = db.prepare('INSERT INTO notifications (user_id, message, link, created_at) VALUES (?,?,?,?)');
   const mark = db.prepare('UPDATE saved SET reminder_sent = 1 WHERE user_id = ? AND scholarship_id = ?');
   let n = 0;
+  const t0 = v.today();
   db.transaction(() => {
     for (const r of rows) {
-      const d = v.daysUntil(r.deadline);
+      if (!r.due || r.due < t0) continue;
+      const d = v.daysUntil(r.due);
       if (d <= r.remind_days) {
-        ins.run(r.user_id, `Reminder: "${r.title}" closes ${d === 0 ? 'today' : `in ${d} day${d === 1 ? '' : 's'}`} (${r.deadline}).`, `/scholarships/${r.scholarship_id}`, sec.now());
+        ins.run(r.user_id, `Reminder: "${r.title}" closes ${d === 0 ? 'today' : `in ${d} day${d === 1 ? '' : 's'}`} (${r.due}). Check the official page to confirm.`, `/scholarships/${r.scholarship_id}`, sec.now());
         mark.run(r.user_id, r.scholarship_id);
+        mailer.send({ to: r.email, subject: `Deadline reminder: ${r.title}`, text: `Reminder: "${r.title}" closes ${d === 0 ? 'today' : `in ${d} day${d === 1 ? '' : 's'}`} (${r.due}).\nCheck the official page to confirm, then apply there.\n\nHope Scholar` });
         n++;
       }
     }
@@ -75,4 +94,5 @@ function cleanup(db) {
   db.prepare('DELETE FROM password_resets WHERE expires_at < ? OR used = 1').run(t - 24 * 3600e3);
 }
 
-module.exports = { getProfile, profileComplete, searchScholarships, recommendations, runReminders, cleanup, interestFields };
+module.exports = {
+  studyOptions, getProfile, profileComplete, searchScholarships, recommendations, runReminders, cleanup, interestFields };

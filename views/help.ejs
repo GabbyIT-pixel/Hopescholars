@@ -1,11 +1,11 @@
 <%- include('partials/head') %>
 <section class="help-page">
   <h1>How can we help?</h1>
-  <p class="lead">Ask about anything on Hope Scholar. Answers appear instantly<%= helpAi ? ' (written by an AI assistant that only uses our help content)' : '' %>.</p>
+  <p class="lead">Ask about anything on Hope Scholar, or watch the <a href="/guide">video guide</a>. Answers appear instantly<%= helpAi ? ' (written by an AI assistant)' : '' %>.</p>
   <form method="post" action="/help/ask" class="ask" role="search">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <label class="sr" for="q">Your question</label>
-    <input id="q" name="q" value="<%= asked %>" maxlength="300" placeholder="e.g. How do I save a scholarship?" autocomplete="off" required>
+    <input id="q" name="q" value="<%= asked %>" maxlength="1000" placeholder="e.g. How do I save a scholarship?" autocomplete="off" required>
     <button class="btn btn-primary" type="submit">Ask</button>
   </form>
   <% if (result) { %>

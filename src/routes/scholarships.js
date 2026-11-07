@@ -15,10 +15,13 @@ router.get('/scholarships', (req, res) => {
     field: v.oneOf(req.query.field, v.FIELDS.slice(1)),
     level: v.oneOf(req.query.level, v.LEVELS),
     country: v.oneOf(req.query.country, v.COUNTRIES.slice(1)),
+    study: '',
     need: req.query.need === '1' ? '1' : '',
     within: [30, 60, 90].includes(Number(req.query.within)) ? Number(req.query.within) : 0,
     sort: req.query.sort === 'newest' ? 'newest' : 'deadline',
   };
+  const studyList = svc.studyOptions(db);
+  f.study = (studyList.find((o) => o.name.toLowerCase() === v.clean(req.query.study, 60).toLowerCase()) || {}).name || '';
   const page = Math.max(1, Math.min(500, parseInt(req.query.page, 10) || 1));
   const { rows, total } = svc.searchScholarships(db, f, page, config.pageSize);
   const profile = req.user && req.user.role === 'student' ? svc.getProfile(db, req.user.id) : null;
@@ -26,7 +29,7 @@ router.get('/scholarships', (req, res) => {
   const items = rows.map((s) => ({ s, m: profile && svc.profileComplete(profile) ? match(profile, s, fields) : null }));
   const savedIds = req.user ? new Set(db.prepare('SELECT scholarship_id id FROM saved WHERE user_id = ?').all(req.user.id).map((r) => r.id)) : new Set();
   const qs = new URLSearchParams(Object.entries(f).filter(([, val]) => val)).toString();
-  res.render('scholarships', { title: 'Find scholarships', items, total, f, page, pages: Math.max(1, Math.ceil(total / config.pageSize)), savedIds, qs });
+  res.render('scholarships', { studyList, title: 'Find scholarships', items, total, f, page, pages: Math.max(1, Math.ceil(total / config.pageSize)), savedIds, qs });
 });
 
 router.get('/scholarships/:id', (req, res, next) => {
@@ -57,11 +60,18 @@ router.post('/scholarships/:id/save', ...studentOnly, (req, res, next) => {
   const s = loadOpen(req); if (!s) return next();
   const db = req.app.locals.db;
   const days = [3, 7, 14, 30].includes(Number(req.body.remind_days)) ? Number(req.body.remind_days) : 7;
-  db.prepare(`INSERT INTO saved (user_id, scholarship_id, remind_days, saved_at) VALUES (?,?,?,?)
-    ON CONFLICT(user_id, scholarship_id) DO UPDATE SET remind_days = excluded.remind_days, reminder_sent = 0`).run(req.user.id, s.id, days, sec.now());
+  // Optional: the date the student read on the official site (used when the listing has no fixed deadline).
+  let mine = v.clean(req.body.my_deadline, 10);
+  if (mine && (!v.isIsoDate(mine) || v.daysUntil(mine) < 0 || v.daysUntil(mine) > 1100)) {
+    req.flash('error', 'Please enter a deadline date that is today or later.');
+    return res.redirect(`/scholarships/${s.id}`);
+  }
+  mine = mine || null;
+  db.prepare(`INSERT INTO saved (user_id, scholarship_id, remind_days, my_deadline, saved_at) VALUES (?,?,?,?,?)
+    ON CONFLICT(user_id, scholarship_id) DO UPDATE SET remind_days = excluded.remind_days, my_deadline = excluded.my_deadline, reminder_sent = 0`).run(req.user.id, s.id, days, mine, sec.now());
   db.prepare("INSERT OR IGNORE INTO applications (user_id, scholarship_id, status, updated_at) VALUES (?,?,'Saved',?)").run(req.user.id, s.id, sec.now());
   svc.runReminders(db);
-  req.flash('success', `Saved. We will remind you ${days} days before the deadline.`);
+  req.flash('success', (mine || s.deadline_type === 'fixed') ? `Saved. We will remind you ${days} days before the deadline.` : 'Saved. This programme has no published date yet, so add the date from the official page later to get a reminder.');
   res.redirect(`/scholarships/${s.id}`);
 });
 

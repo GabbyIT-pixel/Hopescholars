@@ -17,7 +17,7 @@ const cookieOpts = () => ({ httpOnly: true, sameSite: 'lax', secure: config.isPr
 
 router.use('/auth/google', (req, res, next) => {
   if (enabled()) return next();
-  req.flash('info', 'Google sign-in is not set up on this site yet. Please use your email and password.');
+  req.flash('info', 'Google sign-in is not switched on yet: the site owner has to add Google credentials (see the README). Please sign up or log in with your email for now.');
   res.redirect('/login');
 });
 

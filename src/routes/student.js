@@ -10,8 +10,8 @@ const student = [sec.requireLogin, sec.requireRole('student')];
 router.get('/dashboard', ...student, (req, res) => {
   const db = req.app.locals.db;
   const profile = svc.getProfile(db, req.user.id);
-  const upcoming = db.prepare(`SELECT s.*, sv.remind_days FROM saved sv JOIN scholarships s ON s.id = sv.scholarship_id
-    WHERE sv.user_id = ? AND s.deadline >= ? AND s.status = 'verified' ORDER BY s.deadline ASC LIMIT 5`).all(req.user.id, v.today());
+  const upcoming = db.prepare(`SELECT s.*, sv.remind_days, COALESCE(sv.my_deadline, s.deadline) AS due FROM saved sv JOIN scholarships s ON s.id = sv.scholarship_id
+    WHERE sv.user_id = ? AND COALESCE(sv.my_deadline, s.deadline) >= ? AND s.status = 'verified' ORDER BY due ASC LIMIT 5`).all(req.user.id, v.today()).map((r) => ({ ...r, deadline: r.due }));
   const counts = db.prepare(`SELECT
     (SELECT COUNT(*) FROM saved WHERE user_id = @u) saved,
     (SELECT COUNT(*) FROM applications WHERE user_id = @u) tracked,
@@ -85,14 +85,16 @@ router.post('/account', sec.requireLogin, async (req, res) => {
 
 /* ---------- saved scholarships & tracking (FR 5.1, 5.3) ---------- */
 router.get('/saved', ...student, (req, res) => {
-  const rows = req.app.locals.db.prepare(`SELECT s.*, sv.remind_days, sv.saved_at FROM saved sv JOIN scholarships s ON s.id = sv.scholarship_id
-    WHERE sv.user_id = ? ORDER BY s.deadline ASC`).all(req.user.id);
+  const rows = req.app.locals.db.prepare(`SELECT s.*, sv.remind_days, sv.saved_at, sv.my_deadline, COALESCE(sv.my_deadline, s.deadline) AS due FROM saved sv JOIN scholarships s ON s.id = sv.scholarship_id
+    WHERE sv.user_id = ? ORDER BY due ASC`).all(req.user.id).map((r) => ({ ...r, deadline: r.due }));
   res.render('saved', { title: 'Saved scholarships', rows });
 });
 
 router.get('/applications', ...student, (req, res) => {
-  const rows = req.app.locals.db.prepare(`SELECT s.id, s.title, s.provider, s.deadline, s.status sch_status, a.status, a.notes, a.updated_at
-    FROM applications a JOIN scholarships s ON s.id = a.scholarship_id WHERE a.user_id = ? ORDER BY s.deadline ASC`).all(req.user.id);
+  const rows = req.app.locals.db.prepare(`SELECT s.id, s.title, s.provider, s.application_url, COALESCE(sv.my_deadline, s.deadline) AS deadline, s.status sch_status, a.status, a.notes, a.updated_at
+    FROM applications a JOIN scholarships s ON s.id = a.scholarship_id
+    LEFT JOIN saved sv ON sv.user_id = a.user_id AND sv.scholarship_id = a.scholarship_id
+    WHERE a.user_id = ? ORDER BY deadline ASC`).all(req.user.id);
   res.render('applications', { title: 'My applications', rows, statuses: v.APP_STATUSES });
 });
 

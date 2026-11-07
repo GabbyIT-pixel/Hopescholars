@@ -6,10 +6,10 @@
   <h3><a href="/scholarships/<%= s.id %>"><%= s.title %></a></h3>
   <p class="muted"><%= s.provider %></p>
   <ul class="tags">
-    <li><%= s.education_level %></li><li><%= s.field_of_study %></li><li><%= s.country === 'Any' ? 'Open to all countries' : s.country %></li>
+    <% if (s.study_in) { %><li class="tag-place">Study in: <%= s.study_in.split(',').join(', ') %></li><% } %><li><%= s.education_level %></li><li><%= s.field_of_study %></li><li><%= s.eligible_countries ? 'Selected countries' : (s.country === 'Any' ? 'Open to many countries' : s.country) %></li>
     <% if (s.need_based) { %><li>Need-based</li><% } %>
   </ul>
-  <p class="meta"><strong>Deadline:</strong> <%= fmtDate(s.deadline) %><% if (s.award_value) { %> · <strong>Award:</strong> <%= s.award_value %><% } %></p>
+  <p class="meta"><% if (s.deadline_type === 'fixed') { %><strong>Deadline:</strong> <%= fmtDate(s.deadline) %><% } else { %><strong>Dates:</strong> on the official site<% } %><% if (s.award_value) { %> · <strong>Covers:</strong> <%= s.award_value %><% } %></p>
   <% if (m && m.reasons.length) { %><p class="why">Why: <%= m.reasons.slice(0, 2).join(' · ') %></p><% } %>
-  <a class="link-more" href="/scholarships/<%= s.id %>">View details →</a>
+  <div class="card-actions"><a class="link-more" href="/scholarships/<%= s.id %>">Details</a><a class="link-official" href="<%= s.application_url %>" target="_blank" rel="noopener noreferrer nofollow">Official site ↗</a></div>
 </article>

@@ -28,7 +28,7 @@ test('student journey: profile → search → save → remind → track', async 
 
   const list = await c.get('/scholarships?field=' + encodeURIComponent('Computer Science / IT'));
   assert.match(list.text, /% match/);
-  const id = ctx.db.prepare("SELECT id FROM scholarships WHERE title LIKE 'Sample: Women in Computing%'").get().id;
+  const id = ctx.db.prepare("SELECT id FROM scholarships WHERE title LIKE 'Test: Women in Computing%'").get().id;
   const detail = await c.get('/scholarships/' + id);
   assert.match(detail.text, /Your match/);
 
@@ -37,7 +37,7 @@ test('student journey: profile → search → save → remind → track', async 
   const user = ctx.db.prepare("SELECT id FROM users WHERE email='journey@test.org'").get();
   assert.ok(ctx.db.prepare('SELECT 1 FROM saved WHERE user_id=? AND scholarship_id=?').get(user.id, id));
   const alerts = await c.get('/notifications');
-  assert.match(alerts.text, /Reminder: &#34;Sample: Women in Computing Scholarship&#34; closes/);
+  assert.match(alerts.text, /Reminder: &#34;Test: Women in Computing Scholarship&#34; closes/);
 
   const track = await c.post(`/scholarships/${id}/track`, { status: 'Applied', notes: 'Sent on Friday' }, '/scholarships/' + id);
   assert.strictEqual(track.status, 302);
@@ -92,7 +92,7 @@ test('listing validation rejects past deadlines and unsafe links', () => {
 });
 
 test('expired scholarships are not listed (business rule)', () => {
-  ctx.db.prepare("UPDATE scholarships SET deadline = '2001-01-01' WHERE title LIKE 'Sample: Engineering%'").run();
+  ctx.db.prepare("UPDATE scholarships SET deadline = '2001-01-01' WHERE title LIKE 'Test: Engineering%'").run();
   const { rows } = svc.searchScholarships(ctx.db, { q: 'Engineering Innovators' }, 1, 20);
   assert.strictEqual(rows.length, 0);
 });

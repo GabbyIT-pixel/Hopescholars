@@ -6,21 +6,34 @@
     <span class="chip chip-<%= urgency(s.deadline) %>"><%= daysLabel(s.deadline) %></span>
     <h1><%= s.title %></h1>
     <p class="muted"><%= s.provider %></p>
+    <% if (s.deadline_type !== 'fixed' || s.deadline_note) { %>
+      <div class="notice"><strong><%= s.deadline_type === 'rolling' ? 'Rolling applications' : (s.deadline_type === 'annual' ? 'Application dates' : 'Note') %>:</strong> <%= s.deadline_note || 'Check the official page for the current application dates.' %></div>
+    <% } %>
+    <p class="apply-row">
+      <a class="btn btn-primary btn-lg" href="<%= s.application_url %>" target="_blank" rel="noopener noreferrer nofollow">Go to the official application page ↗</a>
+      <span class="muted small">Opens <strong><%= host(s.application_url) %></strong> in a new tab. You apply there, not on Hope Scholar.</span>
+    </p>
     <dl class="facts">
-      <div><dt>Deadline</dt><dd><%= fmtDate(s.deadline) %></dd></div>
-      <div><dt>Award</dt><dd><%= s.award_value || 'See provider' %></dd></div>
+      <div><dt>Deadline</dt><dd><%= s.deadline_type === 'fixed' ? fmtDate(s.deadline) : (s.deadline_type === 'rolling' ? 'Rolling' : 'See official site') %></dd></div>
+      <div><dt>Covers</dt><dd><%= s.award_value || 'See provider' %></dd></div>
+      <div><dt>Study in</dt><dd><%= s.study_in ? s.study_in.split(',').join(', ') : 'Varies' %></dd></div>
       <div><dt>Level</dt><dd><%= s.education_level %></dd></div>
       <div><dt>Field</dt><dd><%= s.field_of_study %></dd></div>
-      <div><dt>Country</dt><dd><%= s.country === 'Any' ? 'Open to all' : s.country %></dd></div>
-      <div><dt>Need-based</dt><dd><%= s.need_based ? 'Yes' : 'No' %></dd></div>
+      <div><dt>Countries</dt><dd><%= s.eligible_countries ? s.eligible_countries.split(',').join(', ') : (s.country === 'Any' ? 'See eligibility' : s.country) %></dd></div>
+      <div><dt>Need-based</dt><dd><%= s.need_based ? 'Yes' : 'Not required' %></dd></div>
     </dl>
     <h2>About this scholarship</h2>
     <p class="pre"><%= s.description %></p>
-    <h2>Eligibility requirements</h2>
+    <h2>Who can apply</h2>
     <p class="pre"><%= s.eligibility %></p>
     <% if (s.instructions) { %><h2>How to apply</h2><p class="pre"><%= s.instructions %></p><% } %>
-    <p><a class="btn btn-primary btn-lg" href="<%= s.application_url %>" target="_blank" rel="noopener noreferrer nofollow">Apply on the provider's website ↗</a></p>
-    <p class="muted small">You apply on the provider's official site. Hope Scholar helps you find, organise and track.</p>
+    <div class="provenance">
+      <h2>Where this information comes from</h2>
+      <p>Source: <a href="<%= s.source_url || s.application_url %>" target="_blank" rel="noopener noreferrer nofollow"><%= host(s.source_url || s.application_url) %> ↗</a>
+        <% if (s.last_verified) { %> · Last checked against the official site on <strong><%= fmtDate(s.last_verified) %></strong><% } %>
+        <% if (s.link_status === 'broken') { %> · <span class="warn-text">The official link may be down. Search for the programme name.</span><% } %></p>
+      <p class="muted small">Scholarship rules and dates change. Always confirm on the official page before you apply. Never pay anyone to apply.</p>
+    </div>
   </article>
   <aside>
     <% if (currentUser && currentUser.role === 'student') { %>
@@ -36,11 +49,12 @@
       <% if (s.status === 'verified') { %>
       <div class="card">
         <% if (saved) { %>
-          <p>✔ Saved. Reminder <%= saved.remind_days %> days before the deadline.</p>
+          <p>✔ Saved. <%= (saved.my_deadline || s.deadline_type === 'fixed') ? 'Reminder ' + saved.remind_days + ' days before ' + fmtDate(saved.my_deadline || s.deadline) + '.' : 'Add the date from the official page to get a reminder.' %></p>
           <form method="post" action="/scholarships/<%= s.id %>/unsave"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn">Remove from saved</button></form>
         <% } else { %>
           <form method="post" action="/scholarships/<%= s.id %>/save" class="form">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label><%= s.deadline_type === 'fixed' ? 'Your own deadline date (optional)' : 'Deadline you found on the official site' %> <input type="date" name="my_deadline" value=""></label>
             <label>Remind me <select name="remind_days"><option value="3">3 days before</option><option value="7" selected>7 days before</option><option value="14">14 days before</option><option value="30">30 days before</option></select></label>
             <button class="btn btn-primary" type="submit">Save scholarship</button>
           </form>

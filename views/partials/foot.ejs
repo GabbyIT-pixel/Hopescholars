@@ -15,7 +15,7 @@
   <form class="help-form" id="help-form" method="post" action="/help/ask" data-keep>
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <label class="sr" for="help-q">Your question</label>
-    <input id="help-q" name="q" maxlength="300" placeholder="Type your question…" autocomplete="off" required>
+    <input id="help-q" name="q" maxlength="1000" placeholder="Type your question…" autocomplete="off" required>
     <button class="btn btn-primary" type="submit">Send</button>
   </form>
   <p class="small muted help-note">Automated assistant. Always confirm scholarship details on the provider's website.</p>

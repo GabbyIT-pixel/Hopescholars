@@ -10,6 +10,15 @@ async function start() {
   process.env.SEED_DEMO = 'true';
   const db = openDb(':memory:');
   await seed(db);
+  // Test-only fixtures with fixed deadlines (the real catalogue mostly has "dates on the official site").
+  const adminId = db.prepare("SELECT id FROM users WHERE role = 'admin'").get().id;
+  const day = (n) => new Date(Date.now() + n * 86400e3).toISOString().slice(0, 10);
+  const ins = db.prepare(`INSERT INTO scholarships (title, provider, description, eligibility, education_level, field_of_study, country, need_based, award_value,
+    deadline, deadline_type, application_url, status, submitted_by, verified_by, last_verified, created_at, updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,'fixed',?,'verified',?,?,date('now'),?,?)`);
+  const t = Date.now();
+  ins.run('Test: Women in Computing Scholarship', 'Test Provider', 'A fixture scholarship that supports women studying computer science.', 'Women enrolled in a computing programme.', 'Undergraduate', 'Computer Science / IT', 'Any', 0, 'USD 1,500', day(21), 'https://example.org/test-a', adminId, adminId, t, t);
+  ins.run('Test: Engineering Innovators Grant', 'Test Provider', 'A fixture grant for engineering students with a community project.', 'Engineering students with a project.', 'Undergraduate', 'Engineering', 'Any', 0, 'USD 1,000', day(58), 'https://example.org/test-b', adminId, adminId, t, t);
   const app = createApp(db);
   const server = await new Promise((r) => { const s = app.listen(0, () => r(s)); });
   const base = `http://127.0.0.1:${server.address().port}`;

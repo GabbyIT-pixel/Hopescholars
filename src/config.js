@@ -1,12 +1,15 @@
 'use strict';
 const path = require('path');
 
+// Load a local .env file if present (never overrides real environment variables; not used in tests).
+if (process.env.NODE_ENV !== 'test') { try { process.loadEnvFile(path.join(__dirname, '..', '.env')); } catch { /* no .env file: fine */ } }
 const env = process.env;
 const isProd = env.NODE_ENV === 'production';
 
 module.exports = {
   isProd,
   port: Number(env.PORT) || 3000,
+  smtpHost: env.SMTP_HOST || '', smtpPort: parseInt(env.SMTP_PORT || '465', 10), smtpUser: env.SMTP_USER || '', smtpPass: env.SMTP_PASS || '', mailFrom: env.MAIL_FROM || '',
   dbPath: env.DB_PATH || path.join(__dirname, '..', 'data', 'hopescholar.db'),
   // Demo mode shows password-reset links on screen because no email service is wired up.
   // NEVER enable in a real deployment that handles real students.
@@ -23,7 +26,7 @@ module.exports = {
   googleClientSecret: env.GOOGLE_CLIENT_SECRET || '',
   // Optional: let the help desk use the Claude API. Without a key it uses the built-in knowledge base.
   helpdeskApiKey: env.ANTHROPIC_API_KEY || '',
-  helpdeskModel: env.HELPDESK_MODEL || 'claude-haiku-5-5',
+  helpdeskModel: env.HELPDESK_MODEL || 'claude-sonnet-5-5',
   bcryptRounds: isProd ? 12 : 10,
   pageSize: 9,
 };

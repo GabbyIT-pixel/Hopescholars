@@ -1,36 +1,113 @@
 <%- include('partials/head') %>
-<section class="hero">
-  <div>
-    <p class="eyebrow">For students from underserved communities</p>
-    <h1>Find the scholarship that fits <em>you</em>, before the deadline passes.</h1>
-    <p class="lead">Scholarship information is scattered across hundreds of websites. Hope Scholar brings it together: search, match to your profile, save, get reminders and track every application in one place.</p>
-    <form method="get" action="/scholarships" class="hero-search" role="search">
-      <label class="sr" for="hero-q">Search scholarships</label>
-      <input id="hero-q" type="search" name="q" placeholder="Search by topic, e.g. health, engineering, women" maxlength="80">
-      <button class="btn btn-primary" type="submit">Search</button>
-    </form>
-    <p class="cta">
-      <a class="btn btn-primary btn-lg" href="/register">Create your free account</a>
-      <a class="btn btn-lg" href="/scholarships">Browse <%= count %> open scholarships</a>
+<section class="cover">
+  <%- include('partials/dawn') %>
+  <div class="cover-inner">
+    <h1>Find scholarships you can actually apply for.</h1>
+    <p class="cover-lead">Verified scholarships for undergraduate and postgraduate study in Africa and around the world, collected from official sources. Search by where you want to study, and apply on the real website.</p>
+    <p class="cover-actions">
+      <a class="btn btn-light btn-lg" href="/register">Create free account</a>
+      <% if (googleEnabled) { %><a class="btn btn-google btn-lg" href="/auth/google?role=student"><%- include('partials/google-icon') %> Sign up with Google</a><% } %>
+      <a class="cover-link" href="/scholarships">Browse all <%= count %> programmes</a>
     </p>
   </div>
-  <ol class="journey" aria-label="How it works">
-    <li><b>Discover</b><span>Search and filter by field, level, country and deadline.</span></li>
-    <li><b>Match</b><span>See how well each scholarship fits your profile, and why.</span></li>
-    <li><b>Save</b><span>Keep a shortlist of the ones you want.</span></li>
-    <li><b>Remember</b><span>Get a reminder before each deadline.</span></li>
-    <li><b>Track</b><span>Follow every application from Preparing to Accepted.</span></li>
-  </ol>
-</section>
-<section class="steps-help card">
-  <div><h2>New here? Get started in 3 steps</h2>
-    <ol class="mini-steps"><li><b>Sign up</b> with your email<%= googleEnabled ? ' or Google' : '' %>.</li><li><b>Fill your profile</b> so we can match you.</li><li><b>Save</b> scholarships and we remind you before each deadline.</li></ol>
+  <% if (people && people.length) { %>
+  <div class="cover-photos">
+    <% people.slice(0, 3).forEach(function (p) { %><figure><img src="<%= p.src %>" alt="<%= p.alt %>" decoding="async"></figure><% }) %>
   </div>
-  <div><h2>Questions?</h2><p>Our help desk answers questions about the platform instantly, any time.</p><a class="btn" href="/help">Ask the help desk</a></div>
+  <% } %>
 </section>
-<section class="trust">
-  <div><h2>Built for low-bandwidth and mobile</h2><p>Light pages that work on a basic smartphone and a slow connection. No app download needed.</p></div>
-  <div><h2>Verified listings</h2><p>Every scholarship is reviewed by an administrator before students can see it.</p></div>
-  <div><h2>Your data stays protected</h2><p>Hashed passwords, encrypted connections, role-based access and an audit trail. We only ask for what matching needs.</p></div>
+
+<section class="finder" aria-label="Find a scholarship">
+  <form method="get" action="/scholarships" role="search">
+    <label class="f-wide">What are you looking for?<input id="hero-q" type="search" name="q" placeholder="e.g. engineering, refugee, EARTH University" maxlength="80" autocomplete="off"></label>
+    <label>Where do you want to study?<select name="study"><option value="">Anywhere in the world</option><% studyList.forEach(function (o) { %><option value="<%= o.name %>"><%= o.name %></option><% }) %></select></label>
+    <label>Level<select name="level"><option value="">Any level</option><% v.LEVELS.forEach(function (l) { %><option value="<%= l %>"><%= l %></option><% }) %></select></label>
+    <button class="btn btn-gold btn-lg" type="submit">Search scholarships</button>
+  </form>
+</section>
+
+<section class="publishers" aria-label="Where the programmes come from">
+  <p>Programmes published by</p>
+  <ul><li>Mastercard Foundation</li><li>UNHCR</li><li>Chevening</li><li>Fulbright</li><li>DAAD</li><li>Erasmus Mundus</li><li>Commonwealth</li><li>EARTH University</li><li>Aga Khan Foundation</li></ul>
+</section>
+
+<% if (people && people.length) { %>
+<section class="faces" aria-labelledby="faces-h">
+  <h2 id="faces-h" class="reveal">Behind every application is a real person</h2>
+  <div class="faces-grid">
+    <% people.forEach(function (p, i) { %><figure class="reveal d<%= i %>"><img src="<%= p.src %>" alt="<%= p.alt %>" loading="lazy" decoding="async"><figcaption><%= p.alt %></figcaption></figure><% }) %>
+  </div>
+</section>
+<% } %>
+
+<section class="ledger" aria-label="Facts about this catalogue">
+  <div><b data-count="<%= count %>"><%= count %></b><span>programmes, each linked to its official page</span></div>
+  <div><b data-count="<%= studyList.length %>"><%= studyList.length %></b><span>places to study across Africa, Europe, Asia and the Americas</span></div>
+  <div><b>0</b><span>fees. Free for students. Never pay to apply.</span></div>
+  <div><b><%= newest ? fmtDate(newest) : 'Today' %></b><span>latest check of a listing against its official site</span></div>
+</section>
+
+<section class="dest" aria-labelledby="dest-h">
+  <h2 id="dest-h">Browse by study destination</h2>
+  <div class="dest-grid">
+    <% studyList.slice(0, 15).forEach(function (o) { %><a class="dest-card" href="/scholarships?study=<%= encodeURIComponent(o.name) %>"><b><%= o.name %></b><span><%= o.count %> programme<%= o.count === 1 ? '' : 's' %></span></a><% }) %>
+  </div>
+</section>
+
+<section class="mantra">
+  <blockquote>
+    <p>Education is the most powerful weapon which you can use to change the world.</p>
+    <footer>Nelson Mandela</footer>
+  </blockquote>
+  <p class="mantra-text">It does not matter where you were born, what your family has, or what papers you carry. A scholarship can open the door, and your education is what you carry through it. We help you find the door.</p>
+</section>
+
+<section class="why">
+  <h2>Built so you can trust what you read</h2>
+  <div class="why-grid">
+    <div><h3>Official pages only</h3><p>Apply buttons open the programme owner's own website. We show the address before you click, so you know where you are going.</p></div>
+    <div><h3>Honest about dates</h3><p>Many programmes announce next year's dates late. We say so instead of guessing, and you can add the date you find to get your own reminder.</p></div>
+    <div><h3>Matched to you</h3><p>Tell us your level, field and country once. Each programme shows a match score with the reasons, and warns you when a rule rules you out.</p></div>
+  </div>
+</section>
+
+<section class="stages">
+  <h2>Start with where you are now</h2>
+  <div class="stage-grid">
+    <% [['Undergraduate','Undergraduate degree'],['Postgraduate (Masters)',"Master's degree"],['PhD','PhD']].forEach(function(l){ %>
+      <a class="stage" href="/scholarships?level=<%= encodeURIComponent(l[0]) %>"><span><%= l[1] %></span><b><%= byLevel[l[0]] %></b></a>
+    <% }) %>
+    <a class="stage stage-refugee" href="/scholarships?q=refugee"><span>Refugee students</span><b>Find DAFI and more</b></a>
+  </div>
+</section>
+
+<section class="featured">
+  <div class="page-head"><h2>Programmes to look at first</h2><a href="/scholarships">See all</a></div>
+  <div class="cards">
+    <% featured.forEach(function(s){ %><%- include('partials/card', { s: s, m: null }) %><% }) %>
+  </div>
+</section>
+
+<section class="how">
+  <h2>How it works</h2>
+  <ol class="how-steps">
+    <li><b>Search or get matched</b><span>Filter by level, field and country, or complete your profile and see your best fits first.</span></li>
+    <li><b>Read the facts</b><span>Each page lists who can apply, what is covered, the source and when we last checked it.</span></li>
+    <li><b>Save and set a reminder</b><span>Keep a shortlist and add the deadline you find so you are reminded in time.</span></li>
+    <li><b>Apply on the official site</b><span>Then track every application from Preparing to Accepted in one place.</span></li>
+  </ol>
+  <p class="how-video"><a class="btn btn-lg" href="/guide">▶ Watch the video guide</a></p>
+</section>
+
+<section class="closing">
+  <div>
+    <h2>Your next scholarship starts with one account</h2>
+    <p>Free, takes a minute, and works on a basic phone with a slow connection.</p>
+  </div>
+  <p class="cover-actions">
+    <a class="btn btn-gold btn-lg" href="/register">Create free account</a>
+    <% if (googleEnabled) { %><a class="btn btn-google btn-lg" href="/auth/google?role=student"><%- include('partials/google-icon') %> Sign up with Google</a><% } %>
+    <a class="btn btn-ghost-light btn-lg" href="/help">Ask the help desk</a>
+  </p>
 </section>
 <%- include('partials/foot') %>

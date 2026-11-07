@@ -21,8 +21,8 @@ router.post('/provider/new', ...provider, (req, res) => {
   if (errors.length) return res.status(400).render('listing-form', { title: 'Submit a scholarship', action: '/provider/new', s: data, errors, ...formOpts(), cancel: '/provider' });
   const t = sec.now();
   const info = req.app.locals.db.prepare(`INSERT INTO scholarships (title, provider, description, eligibility, education_level, field_of_study, country, need_based,
-    award_value, deadline, application_url, instructions, status, submitted_by, created_at, updated_at)
-    VALUES (@title,@provider,@description,@eligibility,@education_level,@field_of_study,@country,@need_based,@award_value,@deadline,@application_url,@instructions,'pending',@by,@t,@t)`)
+    award_value, study_in, deadline, deadline_type, deadline_note, source_url, application_url, instructions, status, submitted_by, created_at, updated_at)
+    VALUES (@title,@provider,@description,@eligibility,@education_level,@field_of_study,@country,@need_based,@award_value,@study_in,@deadline,@deadline_type,@deadline_note,@source_url,@application_url,@instructions,'pending',@by,@t,@t)`)
     .run({ ...data, by: req.user.id, t });
   req.app.locals.audit(req, 'LISTING_SUBMITTED', `#${info.lastInsertRowid} ${data.title}`);
   req.flash('success', 'Thank you! Your scholarship was submitted and will be published after an administrator verifies it.');
@@ -45,7 +45,7 @@ router.post('/provider/:id/edit', ...provider, (req, res, next) => {
   const { data, errors } = v.scholarshipInput(req.body);
   if (errors.length) return res.status(400).render('listing-form', { title: 'Edit submission', action: `/provider/${existing.id}/edit`, s: { ...data, id: existing.id }, errors, ...formOpts(), cancel: '/provider' });
   req.app.locals.db.prepare(`UPDATE scholarships SET title=@title, provider=@provider, description=@description, eligibility=@eligibility, education_level=@education_level,
-    field_of_study=@field_of_study, country=@country, need_based=@need_based, award_value=@award_value, deadline=@deadline, application_url=@application_url,
+    field_of_study=@field_of_study, country=@country, need_based=@need_based, award_value=@award_value, study_in=@study_in, deadline=@deadline, deadline_type=@deadline_type, deadline_note=@deadline_note, source_url=@source_url, application_url=@application_url,
     instructions=@instructions, status='pending', reject_reason=NULL, updated_at=@t WHERE id=@id AND submitted_by=@by`)
     .run({ ...data, id: existing.id, by: req.user.id, t: sec.now() });
   req.app.locals.audit(req, 'LISTING_RESUBMITTED', `#${existing.id}`);

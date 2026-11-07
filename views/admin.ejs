@@ -7,6 +7,13 @@
   <div class="stat"><b><%= stats.providers %></b><span>Providers</span></div>
   <div class="stat <%= stats.failed24 > 10 ? 'alert' : '' %>"><b><%= stats.failed24 %></b><span>Failed logins (24h)</span></div>
 </section>
+<section class="card backup-panel" aria-label="Data backup">
+  <div>
+    <strong>Data backup</strong>
+    <p class="muted small"><%= backups.length ? 'Latest: ' + backups[0].name + ' (' + Math.round(backups[0].size / 1024) + ' KB). Backups are made automatically each day; the newest 7 are kept.' : 'No backup yet. One is made automatically each day.' %></p>
+  </div>
+  <form method="post" action="/admin/backup"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn" type="submit">Back up now</button></form>
+</section>
 <div class="page-head"><h2>Review queue</h2><a class="btn" href="/admin/listings/new">Add a scholarship</a></div>
 <% if (!pending.length) { %><div class="card center"><p>All caught up. No listings are waiting for review.</p></div><% } %>
 <% pending.forEach(function(s){ %>

@@ -14,11 +14,21 @@
       <label>Country <select name="country"><%- include('partials/options', { list: countries, selected: s.country || 'Any' }) %></select></label>
     </div>
     <label class="check"><input type="checkbox" name="need_based" value="1" <%= s.need_based ? 'checked' : '' %>> Need-based scholarship</label>
+    <label>Award value <input name="award_value" value="<%= s.award_value || '' %>" maxlength="120" placeholder="e.g. Full tuition"></label>
     <div class="grid-2">
-      <label>Award value <input name="award_value" value="<%= s.award_value || '' %>" maxlength="120" placeholder="e.g. Full tuition"></label>
-      <label>Deadline <input type="date" name="deadline" value="<%= s.deadline || '' %>" required></label>
+      <label>Deadline type
+        <select name="deadline_type">
+          <option value="fixed" <%= (s.deadline_type || 'fixed') === 'fixed' ? 'selected' : '' %>>A fixed date</option>
+          <option value="annual" <%= s.deadline_type === 'annual' ? 'selected' : '' %>>Opens every year (date not yet published)</option>
+          <option value="rolling" <%= s.deadline_type === 'rolling' ? 'selected' : '' %>>Rolling (apply any time)</option>
+        </select>
+      </label>
+      <label>Deadline date (fixed only) <input type="date" name="deadline" value="<%= s.deadline && s.deadline !== '2099-12-31' ? s.deadline : '' %>"></label>
     </div>
+    <label>Country where you will study (optional; separate several with commas) <input name="study_in" value="<%= s.study_in || '' %>" maxlength="160" placeholder="e.g. Costa Rica, Germany"></label>
+    <label>Timing note <input name="deadline_note" value="<%= s.deadline_note || '' %>" maxlength="300" placeholder="e.g. Applications open each September; check the official page"></label>
     <label>Official application link <input type="url" name="application_url" value="<%= s.application_url || '' %>" required maxlength="500" placeholder="https://…"></label>
+    <label>Official page where these facts were checked (optional) <input type="url" name="source_url" value="<%= s.source_url || '' %>" maxlength="500" placeholder="https://…"></label>
     <label>How to apply (optional) <textarea name="instructions" rows="3" maxlength="2000"><%= s.instructions || '' %></textarea></label>
     <p>
       <button class="btn btn-primary btn-lg" type="submit">Save</button>

@@ -36,16 +36,17 @@
       sugBox.appendChild(b);
     });
   }
+  var hist = [];
   function ask(q) {
     q = (q || '').trim();
     if (!q) return;
     add(q, 'user');
     input.value = '';
     var wait = add('Thinking…', 'bot wait');
-    var body = new URLSearchParams({ q: q, _csrf: csrf }).toString();
+    var body = new URLSearchParams({ q: q, h: JSON.stringify(hist.slice(-8)), _csrf: csrf }).toString();
     fetch('/help/ask', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'fetch', 'X-CSRF-Token': csrf }, body: body })
       .then(function (r) { return r.json(); })
-      .then(function (d) { wait.remove(); add(d.answer || 'Sorry, I could not answer that.', 'bot', d.links); showSuggestions(d.suggestions); })
+      .then(function (d) { wait.remove(); hist.push({ role: 'user', content: q }, { role: 'assistant', content: String(d.answer || '').slice(0, 1500) }); if (hist.length > 12) hist = hist.slice(-12); add(d.answer || 'Sorry, I could not answer that.', 'bot', d.links); showSuggestions(d.suggestions); })
       .catch(function () { wait.remove(); add('Sorry, something went wrong. Please try again or open the full help page.', 'bot', [['Help page', '/help']]); });
   }
   function open() { panel.hidden = false; document.body.classList.add('help-open'); input.focus(); if (!sugBox.children.length) showSuggestions(suggestions); }

@@ -67,3 +67,20 @@
     });
   });
 })();
+
+// Motion: scroll reveals and count-up numbers (skipped when the visitor prefers reduced motion).
+(function () {
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (calm || !('IntersectionObserver' in window)) return;
+  document.documentElement.classList.add('js');
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('in'); io.unobserve(e.target);
+      var n = e.target.querySelector && e.target.querySelector('[data-count]') || (e.target.hasAttribute && e.target.hasAttribute('data-count') ? e.target : null);
+      if (n) { var to = parseInt(n.getAttribute('data-count'), 10), t0 = performance.now();
+        (function step(t) { var k = Math.min(1, (t - t0) / 1100); n.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); })(t0); }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal, .ledger > div, .why-grid > *, .stage-tile, .home .card, .how-steps li').forEach(function (el) { el.classList.add('reveal'); io.observe(el); });
+})();

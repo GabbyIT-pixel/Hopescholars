@@ -3,6 +3,7 @@ const express = require('express');
 const sec = require('../security');
 const v = require('../validate');
 const config = require('../config');
+const backup = require('../backup');
 
 const router = express.Router();
 const admin = [sec.requireLogin, sec.requireRole('admin')];
@@ -17,7 +18,14 @@ router.get('/admin', ...admin, (req, res) => {
     (SELECT COUNT(*) FROM scholarships WHERE status='pending') pending,
     (SELECT COUNT(*) FROM audit_log WHERE action='LOGIN_FAILED' AND at > ?) failed24`).get(sec.now() - 86400e3);
   const pending = db.prepare("SELECT * FROM scholarships WHERE status='pending' ORDER BY created_at ASC").all();
-  res.render('admin', { title: 'Administration', stats, pending });
+  res.render('admin', { title: 'Administration', stats, pending, backups: backup.listBackups(backup.dirFor(config.dbPath)).slice(0, 3) });
+});
+
+router.post('/admin/backup', ...admin, (req, res) => {
+  const b = backup.backupNow(req.app.locals.db, backup.dirFor(config.dbPath));
+  req.app.locals.audit(req, 'BACKUP_CREATED', b ? b.name : null);
+  req.flash('success', 'Backup saved' + (b ? ': ' + b.name : '.'));
+  res.redirect('/admin');
 });
 
 router.get('/admin/listings', ...admin, (req, res) => {
@@ -36,8 +44,8 @@ router.post('/admin/listings/new', ...admin, (req, res) => {
   if (errors.length) return res.status(400).render('listing-form', { title: 'Add a scholarship', action: '/admin/listings/new', s: data, errors, ...formOpts(), cancel: '/admin/listings' });
   const t = sec.now();
   const info = req.app.locals.db.prepare(`INSERT INTO scholarships (title, provider, description, eligibility, education_level, field_of_study, country, need_based,
-    award_value, deadline, application_url, instructions, status, submitted_by, verified_by, created_at, updated_at)
-    VALUES (@title,@provider,@description,@eligibility,@education_level,@field_of_study,@country,@need_based,@award_value,@deadline,@application_url,@instructions,'verified',@by,@by,@t,@t)`)
+    award_value, study_in, deadline, deadline_type, deadline_note, source_url, application_url, instructions, status, submitted_by, verified_by, last_verified, created_at, updated_at)
+    VALUES (@title,@provider,@description,@eligibility,@education_level,@field_of_study,@country,@need_based,@award_value,@study_in,@deadline,@deadline_type,@deadline_note,@source_url,@application_url,@instructions,'verified',@by,@by,date('now'),@t,@t)`)
     .run({ ...data, by: req.user.id, t });
   req.app.locals.audit(req, 'LISTING_CREATED', `#${info.lastInsertRowid} ${data.title}`);
   req.flash('success', 'Scholarship added and published.');
@@ -59,8 +67,8 @@ router.post('/admin/listings/:id/edit', ...admin, (req, res, next) => {
   const { data, errors } = v.scholarshipInput(req.body);
   if (errors.length) return res.status(400).render('listing-form', { title: 'Edit scholarship', action: `/admin/listings/${s.id}/edit`, s: { ...data, id: s.id }, errors, ...formOpts(), cancel: '/admin/listings' });
   req.app.locals.db.prepare(`UPDATE scholarships SET title=@title, provider=@provider, description=@description, eligibility=@eligibility, education_level=@education_level,
-    field_of_study=@field_of_study, country=@country, need_based=@need_based, award_value=@award_value, deadline=@deadline, application_url=@application_url,
-    instructions=@instructions, updated_at=@t WHERE id=@id`).run({ ...data, id: s.id, t: sec.now() });
+    field_of_study=@field_of_study, country=@country, need_based=@need_based, award_value=@award_value, study_in=@study_in, deadline=@deadline, deadline_type=@deadline_type, deadline_note=@deadline_note, source_url=@source_url, application_url=@application_url,
+    instructions=@instructions, last_verified=date('now'), updated_at=@t WHERE id=@id`).run({ ...data, id: s.id, t: sec.now() });
   req.app.locals.audit(req, 'LISTING_EDITED', `#${s.id} ${data.title}`);
   req.flash('success', 'Scholarship updated.');
   res.redirect('/admin/listings');
@@ -75,6 +83,7 @@ function transition(name, newStatus, auditAction, message) {
     if (name === 'verify' && v.daysUntil(s.deadline) < 0) { req.flash('error', 'This listing\'s deadline has already passed, so it cannot be published.'); return res.redirect('/admin'); }
     db.prepare('UPDATE scholarships SET status = ?, reject_reason = ?, verified_by = ?, updated_at = ? WHERE id = ?')
       .run(newStatus, reason, name === 'verify' ? req.user.id : s.verified_by, sec.now(), s.id);
+    if (name === 'verify') db.prepare("UPDATE scholarships SET last_verified = date('now') WHERE id = ?").run(s.id);
     if (s.submitted_by && s.submitted_by !== req.user.id && (name === 'verify' || name === 'reject')) {
       db.prepare('INSERT INTO notifications (user_id, message, link, created_at) VALUES (?,?,?,?)')
         .run(s.submitted_by, name === 'verify' ? `Your scholarship "${s.title}" was verified and is now live.` : `Your scholarship "${s.title}" needs changes: ${reason}`, '/provider', sec.now());
@@ -94,6 +103,13 @@ router.post('/admin/listings/:id/delete', ...admin, (req, res, next) => {
   req.app.locals.db.prepare('DELETE FROM scholarships WHERE id = ?').run(s.id);
   req.app.locals.audit(req, 'LISTING_DELETED', `#${s.id} ${s.title}`);
   req.flash('success', 'Listing removed permanently.');
+  res.redirect('/admin/listings');
+});
+
+router.post('/admin/links/check', ...admin, async (req, res) => {
+  const r = await require('../linkcheck').checkLinks(req.app.locals.db, { limit: 60 });
+  req.app.locals.audit(req, 'LINKS_CHECKED', null, `${r.ok} ok, ${r.blocked} blocked, ${r.broken} broken`);
+  req.flash(r.broken ? 'error' : 'success', `Checked ${r.checked} links: ${r.ok} work, ${r.blocked} refuse automatic checks (open them manually), ${r.broken} look broken.`);
   res.redirect('/admin/listings');
 });
 

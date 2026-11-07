@@ -6,8 +6,11 @@
   <% if (googleEnabled) { %>
     <a class="btn btn-google btn-lg block" href="/auth/google?role=student"><%- include('partials/google-icon') %> Sign up with Google</a>
     <p class="small center"><a href="/auth/google?role=provider">Scholarship provider? Sign up with Google here</a></p>
-    <p class="divider"><span>or sign up with email</span></p>
+  <% } else { %>
+    <a class="btn btn-google btn-lg block google-off" href="/auth/google"><%- include('partials/google-icon') %> Sign up with Google</a>
+    <p class="google-note">Google sign-in is not switched on for this site yet (the site owner must add Google credentials). Sign up with your email below.</p>
   <% } %>
+  <p class="divider"><span>or sign up with email</span></p>
   <form method="post" action="/register" class="form" novalidate>
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <label>Full name <input name="name" value="<%= form.name || '' %>" autocomplete="name" required maxlength="80" autofocus></label>

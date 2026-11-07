@@ -5,9 +5,13 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "NODE_ENV=development node --watch server.js",
+    "dev": "node scripts/dev.js",
     "seed": "node src/seed.js",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "import": "node scripts/import-catalogue.js",
+    "check-links": "node scripts/check-links.js",
+    "verify": "node scripts/verify-live.js",
+    "setup:google": "node scripts/setup-google.js"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +21,8 @@
     "ejs": "^7.0.2",
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.1",
-    "helmet": "^8.3.0"
+    "helmet": "^8.3.0",
+    "nodemailer": "^10.3.1"
   },
   "private": true,
   "engines": {

@@ -1,10 +1,11 @@
 <%- include('partials/head') %>
 <h1>Find scholarships</h1>
 <form method="get" action="/scholarships" class="filters" role="search">
-  <label class="grow">Search <input type="search" name="q" value="<%= f.q %>" placeholder="Keyword, provider or topic" maxlength="80"></label>
+  <label class="grow">Search <input type="search" name="q" value="<%= f.q %>" placeholder="e.g. Costa Rica, EARTH, engineering" maxlength="80"></label>
   <label>Field <select name="field"><option value="">All fields</option><%- include('partials/options', { list: v.FIELDS.slice(1), selected: f.field }) %></select></label>
   <label>Level <select name="level"><option value="">All levels</option><%- include('partials/options', { list: v.LEVELS, selected: f.level }) %></select></label>
-  <label>Country <select name="country"><option value="">All countries</option><%- include('partials/options', { list: v.COUNTRIES.slice(1), selected: f.country }) %></select></label>
+  <label>Study in <select name="study"><option value="">Anywhere in the world</option><% studyList.forEach(function (o) { %><option value="<%= o.name %>" <%= f.study === o.name ? 'selected' : '' %>><%= o.name %> (<%= o.count %>)</option><% }) %></select></label>
+  <label>Your country <select name="country"><option value="">Any</option><%- include('partials/options', { list: v.COUNTRIES.slice(1), selected: f.country }) %></select></label>
   <label>Deadline <select name="within">
     <option value="">Any time</option>
     <% [30,60,90].forEach(function(n){ %><option value="<%= n %>" <%= f.within === n ? 'selected' : '' %>>Within <%= n %> days</option><% }) %></select></label>

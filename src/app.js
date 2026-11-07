@@ -14,19 +14,25 @@ function createApp(db) {
   app.disable('x-powered-by');
   if (config.isProd) app.set('trust proxy', 1); // behind the host's HTTPS proxy
 
+  // NFR 15: plain-HTTP requests behind the host's proxy are sent to HTTPS (the health check stays reachable).
+  if (config.isProd) app.use((req, res, next) => (req.get('x-forwarded-proto') === 'http' && req.path !== '/health' ? res.redirect(301, `https://${req.get('host')}${req.originalUrl}`) : next()));
+
   app.locals.db = db;
   app.locals.audit = sec.makeAudit(db);
   app.locals.v = v;
-  app.locals.fmtDate = (iso) => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  const noDate = (iso) => !iso || iso === v.NO_DATE;
+  app.locals.fmtDate = (iso) => (noDate(iso) ? 'See official site' : new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }));
   app.locals.fmtTime = (ms) => new Date(ms).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
   app.locals.daysLabel = (iso) => {
+    if (noDate(iso)) return 'Dates on official site';
     const d = v.daysUntil(iso);
     if (d < 0) return 'Closed';
     if (d === 0) return 'Closes today';
     if (d === 1) return '1 day left';
     return `${d} days left`;
   };
-  app.locals.urgency = (iso) => { const d = v.daysUntil(iso); return d < 0 ? 'closed' : d <= 7 ? 'urgent' : d <= 30 ? 'soon' : 'ok'; };
+  app.locals.urgency = (iso) => { if (noDate(iso)) return 'info'; const d = v.daysUntil(iso); return d < 0 ? 'closed' : d <= 7 ? 'urgent' : d <= 30 ? 'soon' : 'ok'; };
+  app.locals.host = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
   app.locals.demoMode = config.demoMode;
   app.locals.googleEnabled = !!(config.googleClientId && config.googleClientSecret);
   app.locals.helpAi = !!config.helpdeskApiKey;

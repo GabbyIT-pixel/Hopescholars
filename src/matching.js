@@ -25,7 +25,11 @@ function match(profile, s, interestFields = []) {
 
   // Country (weight 25)
   possible += 25;
-  if (s.country === 'Any') { earned += 15; reasons.push('Open to applicants from any country'); }
+  const only = s.eligible_countries ? s.eligible_countries.split(',').map((c) => c.trim()).filter(Boolean) : [];
+  if (only.length) {
+    if (only.includes(profile.country)) { earned += 25; reasons.push(`Open to citizens of ${profile.country}`); }
+    else if (profile.country) blockers.push(`Open only to citizens of: ${only.join(', ')}`);
+  } else if (s.country === 'Any') { earned += 15; reasons.push('Open to applicants from any country'); }
   else if (profile.country === s.country) { earned += 25; reasons.push(`Open to students from ${s.country}`); }
   else if (profile.country) blockers.push(`Restricted to ${s.country}`);
 

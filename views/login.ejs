@@ -5,8 +5,11 @@
   <%- include('partials/errors', { errors }) %>
   <% if (googleEnabled) { %>
     <a class="btn btn-google btn-lg block" href="/auth/google"><%- include('partials/google-icon') %> Continue with Google</a>
-    <p class="divider"><span>or log in with email</span></p>
+  <% } else { %>
+    <a class="btn btn-google btn-lg block google-off" href="/auth/google"><%- include('partials/google-icon') %> Continue with Google</a>
+    <p class="google-note">Google sign-in is not switched on for this site yet (the site owner must add Google credentials). Use your email below.</p>
   <% } %>
+  <p class="divider"><span>or log in with email</span></p>
   <form method="post" action="/login" class="form">
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <label>Email address <input id="email" type="email" name="email" value="<%= form.email || '' %>" autocomplete="username" required autofocus></label>

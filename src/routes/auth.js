@@ -1,16 +1,35 @@
 'use strict';
 const express = require('express');
+const fs = require('node:fs');
+const path = require('node:path');
 const config = require('../config');
 const sec = require('../security');
 const v = require('../validate');
+const svc = require('../services');
+const mailer = require('../mailer');
 
 const router = express.Router();
+// Real photos of students: any .jpg/.jpeg/.png/.webp files dropped in public/img/people
+// are shown automatically. Optional captions live in captions.json ({"file.jpg": "text"}).
+function facePhotos() {
+  const dir = path.join(__dirname, '..', '..', 'public', 'img', 'people');
+  try {
+    let caps = {};
+    try { caps = JSON.parse(fs.readFileSync(path.join(dir, 'captions.json'), 'utf8')); } catch { /* optional */ }
+    return fs.readdirSync(dir).filter((f) => /^[\w.-]+\.(jpe?g|png|webp)$/i.test(f)).sort().slice(0, 6)
+      .map((f) => ({ src: '/img/people/' + f, alt: String(caps[f] || 'A student smiling').slice(0, 140) }));
+  } catch { return []; }
+}
 const home = (u) => (u.role === 'admin' ? '/admin' : u.role === 'provider' ? '/provider' : '/dashboard');
 
 router.get('/', (req, res) => {
   const db = req.app.locals.db;
-  const stats = db.prepare("SELECT COUNT(*) c FROM scholarships WHERE status='verified' AND deadline >= ?").get(v.today());
-  res.render('home', { title: 'Find scholarships that fit you', count: stats.c });
+  const open = "status='verified' AND deadline >= ?";
+  const count = db.prepare(`SELECT COUNT(*) c FROM scholarships WHERE ${open}`).get(v.today()).c;
+  const newest = db.prepare(`SELECT MAX(last_verified) d FROM scholarships WHERE ${open}`).get(v.today()).d;
+  const byLevel = Object.fromEntries(v.LEVELS.map((l) => [l, db.prepare(`SELECT COUNT(*) c FROM scholarships WHERE ${open} AND (education_level = ? OR education_level = 'Any')`).get(v.today(), l).c]));
+  const featured = db.prepare(`SELECT * FROM scholarships WHERE ${open} ORDER BY (origin = 'catalogue') DESC, last_verified DESC, id LIMIT 6`).all(v.today());
+  res.render('home', { studyList: svc.studyOptions(db), people: facePhotos(), title: 'Scholarships for East African students', count, newest, byLevel, featured, home: true });
 });
 
 router.get('/register', (req, res) => {
@@ -110,8 +129,10 @@ router.post('/forgot', (req, res) => {
     db.prepare('INSERT INTO password_resets (token_hash, user_id, expires_at) VALUES (?,?,?)').run(sec.sha256(token), user.id, sec.now() + config.resetTokenMinutes * 60e3);
     const url = `${req.protocol}://${req.get('host')}/reset/${token}`;
     req.app.locals.audit({ actorId: user.id, email, ip: req.ip }, 'PASSWORD_RESET_REQUESTED');
-    if (config.demoMode) link = url;           // demo only: no email service connected
-    else console.log(`[password reset] link for ${email}: ${url}`);
+    mailer.send({ to: email, subject: 'Reset your Hope Scholar password',
+      text: `Hello ${user.name},\n\nUse this link to choose a new password. It works once and expires in ${config.resetTokenMinutes} minutes:\n${url}\n\nIf you did not ask for this, ignore this email; your password stays the same.\n\nHope Scholar` });
+    if (config.demoMode) link = url;           // demo only: shows the link on screen
+    else if (!mailer.enabled()) console.log(`[password reset] email is not configured; link for ${email}: ${url}`);
   }
   // Same response whether or not the account exists (no user enumeration).
   res.render('forgot', { title: 'Reset your password', sent: true, link });
