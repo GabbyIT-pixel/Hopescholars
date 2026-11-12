@@ -34,7 +34,6 @@ function createApp(db) {
   app.locals.urgency = (iso) => { if (noDate(iso)) return 'info'; const d = v.daysUntil(iso); return d < 0 ? 'closed' : d <= 7 ? 'urgent' : d <= 30 ? 'soon' : 'ok'; };
   app.locals.host = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
   app.locals.demoMode = config.demoMode;
-  app.locals.googleEnabled = !!(config.googleClientId && config.googleClientSecret);
   app.locals.helpAi = !!config.helpdeskApiKey;
 
   // ---- security headers (strict CSP: no inline scripts, same-origin only) ----
@@ -86,7 +85,6 @@ function createApp(db) {
   app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
   app.use(require('./routes/auth'));
-  app.use(require('./routes/google'));
   app.use(require('./routes/help'));
   app.use(require('./routes/student'));
   app.use(require('./routes/scholarships'));

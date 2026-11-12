@@ -17,7 +17,7 @@ Put the demo accounts in the doc: student `student@hopescholar.demo` / `Student#
 - **Presentation (5):** follow `DEMO_SCRIPT.md` (description, problem, why, solution, demo).
 - **Code availability (5):** public repo, README "Quick start" lists every step with troubleshooting.
 - **Deployment (5):** Render public HTTPS URL (see README "Deploy"). Render free sleeps when idle, so open the site a minute before grading and mention the 30 second wake-up in the doc.
-- **Operation (5):** login, signup, buttons and redirects are covered by 34 tests and `node scripts/verify-live.js <url>`. Anything not working must be stated as a challenge in the doc and video: Google sign-in needs credentials; email reminders and reset emails need SMTP settings.
+- **Operation (5):** login, signup, buttons and redirects are covered by 33 tests and `node scripts/verify-live.js <url>`. Anything not working must be stated as a challenge in the doc and video: Google sign-in needs credentials; email reminders and reset emails need SMTP settings.
 
 ## Final check (do this in a private/incognito window)
 1. `node scripts/verify-live.js https://YOUR-URL --links GITHUB_URL VIDEO_URL SRS_URL DOC_URL`

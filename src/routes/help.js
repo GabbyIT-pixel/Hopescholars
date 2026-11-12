@@ -16,7 +16,7 @@ const askLimiter = rateLimit({
 });
 
 const faqGroups = () => [
-  ['Getting started', ['what', 'free', 'signup', 'google', 'who', 'sources']],
+  ['Getting started', ['what', 'free', 'signup', 'who', 'sources']],
   ['Finding and matching', ['search', 'profile', 'match', 'verified']],
   ['Saving and tracking', ['save', 'reminder', 'track', 'apply', 'deadline']],
   ['Account and safety', ['login', 'reset', 'privacy', 'delete', 'contact']],

@@ -15,7 +15,7 @@ Record your screen and your voice (Zoom, Loom, OBS or the built-in recorder). Qu
 Show the cover page and its motion. Click *Browse all programmes*. Search "refugee", use the Field, Level, Country filters. Open one scholarship: point at the official apply button with the real address, and "Where this information comes from" with the last-checked date.
 
 **3:30 Demo: student (150 s)** (FR 1.1, 1.2, 2.1, 4.1, 4.2, 5.1 to 5.3)
-Sign up (show the password rules; mention the Google button and that it needs credentials). Fill the profile. Show the dashboard recommendations and match percentages, then a scholarship's "Why it matches". Click *Save* with a 7-day reminder, show Saved and Alerts, set the status to *Applied* with a note, show the Applications tracker. Log out.
+Sign up (show the password rules). Fill the profile. Show the dashboard recommendations and match percentages, then a scholarship's "Why it matches". Click *Save* with a 7-day reminder, show Saved and Alerts, set the status to *Applied* with a note, show the Applications tracker. Log out.
 
 **6:00 Demo: provider and administrator (75 s)** (FR 6.1, 6.2)
 Log in as the provider, open *Add scholarship*, and submit one. Log out, log in as the admin: verify it in the review queue, show Manage listings (edit/deactivate), Users, and the Audit log. Show that the verified listing now appears to students.

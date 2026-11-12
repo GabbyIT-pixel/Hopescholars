@@ -6,7 +6,6 @@
     <p class="cover-lead">Verified scholarships for undergraduate and postgraduate study in Africa and around the world, collected from official sources. Search by where you want to study, and apply on the real website.</p>
     <p class="cover-actions">
       <a class="btn btn-light btn-lg" href="/register">Create free account</a>
-      <% if (googleEnabled) { %><a class="btn btn-google btn-lg" href="/auth/google?role=student"><%- include('partials/google-icon') %> Sign up with Google</a><% } %>
       <a class="cover-link" href="/scholarships">Browse all <%= count %> programmes</a>
     </p>
   </div>
@@ -106,7 +105,6 @@
   </div>
   <p class="cover-actions">
     <a class="btn btn-gold btn-lg" href="/register">Create free account</a>
-    <% if (googleEnabled) { %><a class="btn btn-google btn-lg" href="/auth/google?role=student"><%- include('partials/google-icon') %> Sign up with Google</a><% } %>
     <a class="btn btn-ghost-light btn-lg" href="/help">Ask the help desk</a>
   </p>
 </section>

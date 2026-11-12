@@ -143,8 +143,6 @@ tr:last-child td { border-bottom: 0; } td.actions { white-space: nowrap; } td.ac
 
 /* ---------- v2: sign-in, help desk, onboarding ---------- */
 .btn.block { display: flex; width: 100%; justify-content: center; align-items: center; gap: 10px; }
-.btn-google { background: #fff; border-color: #747775; color: #1f1f1f; }
-.btn-google:hover { background: #f2f2f2; color: #1f1f1f; }
 .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .9rem; margin: 18px 0 0; }
 .divider::before, .divider::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
 .pw { position: relative; display: block; } .pw input { padding-right: 70px; }
@@ -211,7 +209,6 @@ body.home main.wrap { max-width: none; padding: 0; min-height: 0; }
 .btn-gold { background: var(--gold); border-color: var(--gold); color: #1b1303; } .btn-gold:hover { background: #ffc85c; border-color: #ffc85c; color: #1b1303; }
 .btn-light { background: #fff; border-color: #fff; color: var(--navy); } .btn-light:hover { background: #e8f0f6; color: var(--navy); }
 .btn-ghost-light { background: transparent; border-color: rgba(255,255,255,.55); color: #fff; } .btn-ghost-light:hover { background: rgba(255,255,255,.14); color: #fff; }
-.btn-google.btn-lg { display: inline-flex; align-items: center; gap: 10px; }
 
 .ledger { max-width: 1120px; margin: -44px auto 0; padding: 0 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
 .ledger > div { background: var(--surface); padding: 22px 22px 20px; border-top: 4px solid var(--gold); box-shadow: var(--shadow); }
@@ -235,11 +232,7 @@ body.home main.wrap { max-width: none; padding: 0; min-height: 0; }
 .closing h2 { color: #fff; margin-bottom: 8px; } .closing p { margin: 0; color: #d6e2ee; } .closing .cover-actions { justify-content: flex-start; }
 .home .site-footer { margin-top: 72px; }
 
-/* ---------- Google button, notices, provenance ---------- */
-.btn-google { background: #fff; border-color: #747775; color: #1f1f1f; }
-.btn-google:hover { background: #f2f2f2; color: #1f1f1f; }
 
-.google-note { margin: 6px 0 0; font-size: .85rem; color: var(--muted); text-align: center; }
 .notice { background: var(--gold-soft); border-left: 4px solid var(--gold); padding: 10px 14px; border-radius: 8px; margin: 12px 0; }
 .apply-row { display: grid; gap: 8px; margin: 14px 0 6px; }
 .provenance { background: #eef4f2; border: 1px solid var(--line); border-radius: var(--radius); padding: 4px 18px 6px; margin-top: 28px; } .provenance h2 { font-size: 1.05rem; }
@@ -320,7 +313,6 @@ body.home main.wrap { max-width: none; padding: 0; min-height: 0; }
 @media (max-width: 600px) { .faces-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
 
 .msg.bot, .msg.user { white-space: pre-wrap; overflow-wrap: anywhere; }
-.btn-google.google-off { opacity: .85; }
 
 /* real photos in the cover (shown on wide screens; phones see them in the band below) */
 .cover-photos { display: none; }

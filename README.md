@@ -61,7 +61,6 @@ Stop the server with `Ctrl + C`. Reset all data: stop the server and delete the 
 | `Port 3000 is already in use` | Run `PORT=3001 npm start` and open http://localhost:3001 |
 | `Cannot find module 'express'` | `npm install` did not finish. Run it again and wait for it to end |
 | Login works but the page loops back to login | Use `http://localhost:3000`, not a network address, when running in production mode |
-| "Continue with Google" is greyed out | Normal. It needs your own Google credentials, see "Sign in with Google" below. Email sign up works without it |
 
 ## Demo accounts
 
@@ -94,7 +93,7 @@ To update the data: edit `data/scholarships.json` (keep `official_url`, `source_
 | SRS requirement | Where to see it |
 |---|---|
 | **FR 1.1** Student registration | `/register` |
-| **FR 1.2** Secure login | `/login` (hashed passwords, lockout, audit), plus optional **Continue with Google** |
+| **FR 1.2** Secure login | `/login` (hashed passwords, lockout, audit) |
 | **FR 1.3** Update account, secure password reset | `/account`, `/forgot` → `/reset/<token>` |
 | **FR 2.1** Create/update profile | `/profile` (level, field, country, need, standing) |
 | **FR 3.1** Keyword search | `/scholarships` search box |
@@ -111,7 +110,6 @@ To update the data: edit `data/scholarships.json` (keep `official_url`, `source_
 | Review audit log (use case diagram) | `/admin/audit` |
 | Help desk (extra) | Floating **Help** button on every page and `/help` page: instant answers about the platform, live answers (open scholarships, your own deadlines), and an optional general AI assistant |
 | Official application (FR 3.3) | "Apply on the official website" button on every detail page, with the provider's own address and a "last checked" date |
-| Sign in with Google (FR 1.2) | `/auth/google` (OpenID Connect with PKCE), active once credentials are set |
 | **NFR 3/4/5/10** usability, responsive, accessible | mobile-first CSS, skip link, labels, focus styles, no JavaScript required |
 | **NFR 1** performance | server-rendered light pages, SQLite indexes |
 
@@ -130,21 +128,6 @@ Implemented to match SRS NFR 9 and NFR 12 to 19 and the component diagram:
 - **Audit log** of logins (success and failure), account changes and every administrative action.
 - **Data minimisation**: only the profile fields needed for matching are collected.
 - Pages are served with `Cache-Control: no-store`.
-
-## Sign in with Google (optional)
-
-The "Continue with Google" / "Sign up with Google" button is shown on the Log in and Sign up pages. It is **greyed out until you add your own Google credentials** (Google requires every website to register its own).
-
-1. Open [console.cloud.google.com](https://console.cloud.google.com) > create a project > **APIs & Services > OAuth consent screen** (External, add your email as a test user) > **Credentials > Create credentials > OAuth client ID > Web application**.
-2. Under **Authorized redirect URIs** add exactly:
-   - for your computer: `http://localhost:3000/auth/google/callback`
-   - for your live site: `https://YOUR-APP.onrender.com/auth/google/callback`
-3. Copy the **Client ID** and **Client secret**.
-4. On your computer run `npm run setup:google` (it asks for the two values and saves them in `.env`), then restart `npm run dev`. Full guide with every click: [docs/GOOGLE_SIGNIN.md](docs/GOOGLE_SIGNIN.md).
-   On Render: **Environment > Add** the same two variables, and set `PUBLIC_URL=https://YOUR-APP.onrender.com`. Render redeploys by itself.
-5. Reload the Sign up page: the Google button is now active.
-
-Only the name and verified email are received. Administrator accounts cannot use Google. If the email already has a password account, the accounts are linked and the old password is switched off.
 
 ## Help desk assistant
 
@@ -204,7 +187,7 @@ hope-scholar/
 │   ├── catalogue.js       # loads the official-source catalogue
 │   ├── linkcheck.js       # official link checker
 │   ├── seed.js            # admin, demo accounts, catalogue
-│   └── routes/            # auth, google, help, student, scholarships, provider, admin
+│   └── routes/            # auth, help, student, scholarships, provider, admin
 ├── data/scholarships.json # curated catalogue (official sources)
 ├── scripts/               # import-catalogue.js, check-links.js
 ├── views/                 # EJS templates (auto-escaped)

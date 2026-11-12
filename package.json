@@ -10,8 +10,7 @@
     "test": "node --test test/*.test.js",
     "import": "node scripts/import-catalogue.js",
     "check-links": "node scripts/check-links.js",
-    "verify": "node scripts/verify-live.js",
-    "setup:google": "node scripts/setup-google.js"
+    "verify": "node scripts/verify-live.js"
   },
   "keywords": [],
   "author": "",

@@ -56,7 +56,7 @@ const W = 1280, H = 720;
   await page.mouse.wheel(0, -500);
 
   // 4. Sign up page
-  await go('/register'); await cap('Step 3', 'Create a free account with your email, or tap "Sign up with Google" for one click.'); await wait(5500);
+  await go('/register'); await cap('Step 3', 'Create a free account with your name, email and a strong password.'); await wait(5500);
 
   // 5. Log in as the demo student
   await go('/login'); await cap('Step 4', 'Log in. (Here we use the demo student account.)');

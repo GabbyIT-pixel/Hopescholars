@@ -2,13 +2,13 @@
 
 Maps every requirement in the Hope Scholar SRS (v1.1, 26 Oct 2026) to the place it is implemented and how it is proven.
 Status values: **Met**, **Partly met** (with the reason), **Needs your action** (depends on keys or hosting you control).
-Tests are in `test/` (run `npm test`, 34 tests).
+Tests are in `test/` (run `npm test`, 33 tests).
 
 ## Functional requirements
 
 | ID | Requirement | Where in the app | Evidence | Status |
 |---|---|---|---|---|
-| FR 1.1 | Student registration | `/register` (`src/routes/auth.js`), optional Google sign-up (`src/routes/google.js`) | features test: register + duplicate email + weak password | Met (Google needs your OAuth keys) |
+| FR 1.1 | Student registration | `/register` (`src/routes/auth.js`) | features test: register + duplicate email + weak password | Met |
 | FR 1.2 | Secure login | `/login`, bcrypt, session cookie, lock-out and rate limit | security tests | Met |
 | FR 1.3 | Update account, reset forgotten password | `/account`, `/forgot`, `/reset/:token` | features + v2 tests (reset link emailed, one use, expires) | Met (email needs SMTP settings; demo mode shows the link on screen) |
 | FR 2.1 | Create/update profile (level, field, standing, need, location) | `/profile` | features test | Met |
@@ -81,11 +81,11 @@ Tests are in `test/` (run `npm test`, 34 tests).
 | Presentation (5) | Narrated video script in `DEMO_SCRIPT.md` | Record the video in your own voice, 5 to 10 minutes |
 | Code availability (5) | Public repo and a step-by-step README Quick start | Keep the repo public; check the README on a clean machine |
 | Deployment (5) | `render.yaml`, README Deploy section | Deploy to Render and put the live URL in the README and Google Doc |
-| Operation (5) | 34 tests pass; `scripts/verify-live.js` checks the live site | Run it against your live URL; mention any known limits in the video |
+| Operation (5) | 33 tests pass; `scripts/verify-live.js` checks the live site | Run it against your live URL; mention any known limits in the video |
 
 ## Known gaps, stated honestly
 
-- Google sign-up, AI help desk answers and email only work after you add the keys listed in `.env.example`.
+- AI help desk answers and email only work after you add the keys listed in `.env.example`.
 - Account email verification at sign-up is not implemented (the SRS asks only for a verifiable address for password recovery).
 - The database file is not encrypted at rest by the app; it relies on the host's disk.
 - Cross-browser testing was automated in Chromium only.

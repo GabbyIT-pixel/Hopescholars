@@ -26,5 +26,14 @@ const { syncCatalogue } = require('./src/catalogue');
   tick();
   setInterval(tick, 60 * 60e3).unref();
 
-  app.listen(config.port, () => console.log(`Hope Scholar running on http://localhost:${config.port} (${config.isProd ? 'production' : 'development'})`));
+  app.listen(config.port, (err) => {
+    // Express 5 passes startup errors (such as "port already in use") to this callback.
+    if (err) {
+      console.error(err.code === 'EADDRINUSE'
+        ? `Port ${config.port} is already in use: an older copy of the app is still running. Close it (Windows: taskkill //F //IM node.exe) and start again.`
+        : `Could not start the server: ${err.message}`);
+      process.exit(1);
+    }
+    console.log(`Hope Scholar running on http://localhost:${config.port} (${config.isProd ? 'production' : 'development'})`);
+  });
 })().catch((e) => { console.error(e.message); process.exit(1); });

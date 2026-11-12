@@ -48,7 +48,6 @@ async function login(email, password) {
     const r = await c0.req('GET', p); ok(r.status === 302 && /login/.test(r.loc), `Protected page ${p} redirects a visitor to /login`);
   }
   const bad = await login('student@hopescholar.demo', 'wrong-password-123'); ok(bad.r.status === 200 || bad.r.status === 401, 'Wrong password is rejected');
-  const g = await c0.req('GET', '/login'); ok(/Continue with Google/.test(g.text), 'Google button is on the login page (active or visibly inactive)');
 
   // Student journey
   const s = await login('student@hopescholar.demo', 'Student#2026demo');

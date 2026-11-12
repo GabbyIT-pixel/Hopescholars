@@ -15,6 +15,18 @@ services:
       - key: SEED_DEMO
         value: "true"        # demo student/provider accounts + sample scholarships
       - key: DEMO_MODE
-        value: "true"        # shows password-reset links on screen (no email service)
+        value: "false"       # keep false on a public site: true would show reset links on screen to anyone
+      - key: PUBLIC_URL
+        sync: false          # your site address, e.g. https://hope-scholar.onrender.com
+      - key: SMTP_HOST
+        sync: false          # email for password-reset links, e.g. smtp.gmail.com (optional but recommended)
+      - key: SMTP_PORT
+        value: "465"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false          # Gmail app password; never commit it to GitHub
+      - key: MAIL_FROM
+        sync: false
       - key: NODE_VERSION
         value: "22"

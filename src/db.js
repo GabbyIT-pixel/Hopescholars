@@ -112,7 +112,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_at ON audit_log(at DESC);
 function openDb(path) {
   const db = new DatabaseSync(path);
   db.exec(SCHEMA);
-  // Light migration: Google sign-in stores Google's stable account id (never used for anything else).
+  // Light migration: older databases may still have a google_sub column; it is no longer used.
   const cols = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
   if (!cols.includes('google_sub')) db.exec('ALTER TABLE users ADD COLUMN google_sub TEXT');
   const addColumn = (table, col, ddl) => {
