@@ -192,16 +192,27 @@ test('only undergraduate-and-above levels exist; Mastercard partner universities
   } finally { close(); }
 });
 
-test('video guide page and file are public', async () => {
+test('video tour is only for signed-in users; the written steps stay public', async () => {
   const { base, close } = await start();
   try {
-    const c = new Client(base);
-    const g = await c.get('/guide');
+    const anon = new Client(base);
+    const g = await anon.get('/guide');
     assert.equal(g.status, 200);
-    assert.ok(g.text.includes('/media/guide.mp4') && g.text.includes('<video'));
-    const v = await fetch(base + '/media/guide.mp4', { headers: { range: 'bytes=0-99' } });
+    assert.ok(!g.text.includes('<video') && !g.text.includes('/media/guide.mp4'), 'anonymous page must not embed the video');
+    assert.ok(g.text.includes('Sign in to watch') && g.text.includes('The steps in writing'));
+    for (const f of ['guide.mp4', 'guide-poster.jpg']) {
+      const r = await fetch(base + '/media/' + f, { redirect: 'manual' });
+      assert.ok(r.status === 302 || r.status === 401, f + ' must not be public (got ' + r.status + ')');
+    }
+    assert.equal((await fetch(base + '/private/media/guide.mp4')).status, 404);
+    const me = new Client(base);
+    await me.login('student@hopescholar.demo', 'Student#2026demo');
+    const ok = await me.get('/guide');
+    assert.ok(ok.text.includes('<video') && ok.text.includes('/media/guide.mp4'));
+    const v = await fetch(base + '/media/guide.mp4', { headers: { range: 'bytes=0-99', cookie: me._cookieHeader() } });
     assert.ok(v.status === 206 || v.status === 200);
     assert.match(v.headers.get('content-type'), /video\/mp4/);
+    assert.equal((await me.get('/media/../server.js')).status === 200, false);
   } finally { close(); }
 });
 

@@ -1,7 +1,9 @@
 'use strict';
 const express = require('express');
 const rateLimit = require('express-rate-limit');
+const path = require('node:path');
 const helpdesk = require('../helpdesk');
+const { requireLogin } = require('../security');
 
 const router = express.Router();
 const dailyLimiter = rateLimit({
@@ -24,6 +26,15 @@ const faqGroups = () => [
 ].map(([title, ids]) => ({ title, items: ids.map((id) => helpdesk.KB.find((e) => e.id === id)).filter(Boolean) }));
 
 router.get('/guide', (req, res) => res.render('guide', { title: 'How to use Hope Scholar' }));
+
+// The video tour shows account pages, so it is served only to signed-in users (never as a public static file).
+const MEDIA = { 'guide.mp4': 'video/mp4', 'guide-poster.jpg': 'image/jpeg' };
+router.get('/media/:file', requireLogin, (req, res, next) => {
+  const type = Object.hasOwn(MEDIA, req.params.file) ? MEDIA[req.params.file] : null;
+  if (!type) return next();
+  res.set('Cache-Control', 'private, no-store');
+  res.type(type).sendFile(path.join(__dirname, '..', '..', 'private', 'media', req.params.file));
+});
 
 router.get('/help', (req, res) => {
   res.render('help', { title: 'Help desk', groups: faqGroups(), result: null, asked: '', suggestions: helpdesk.SUGGEST });
