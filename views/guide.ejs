@@ -2,12 +2,20 @@
 <section class="guide">
   <h1>How to use Hope Scholar</h1>
   <p class="lead">A short video tour of the real app, from search to tracking your application, with a spoken guide. Captions are built in, so it also works with the sound off.</p>
+  <% if (currentUser) { %>
   <div class="guide-video">
     <video controls preload="metadata" playsinline poster="/media/guide-poster.jpg" aria-describedby="guide-steps">
       <source src="/media/guide.mp4" type="video/mp4">
       Your browser cannot play this video. The steps are written below.
     </video>
   </div>
+  <% } else { %>
+  <div class="guide-locked" role="note">
+    <h2>Sign in to watch the video tour</h2>
+    <p>The tour shows the account pages (dashboard, saved list and applications), so it is available to signed-in users. The written steps below are open to everyone.</p>
+    <p><a class="btn btn-primary" href="/login">Log in</a> <a class="btn" href="/register">Create free account</a></p>
+  </div>
+  <% } %>
   <h2 id="guide-steps">The steps in writing</h2>
   <ol class="guide-steps">
     <li><b>Search.</b> Type a word such as "refugee" or "master's" on the home page, then use the filters for field, level, country and deadline. Everything is undergraduate level and above.</li>
