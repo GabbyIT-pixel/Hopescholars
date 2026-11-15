@@ -48,7 +48,7 @@ You should see `Hope Scholar running on http://localhost:3000`.
 
 **Step 6 (optional). Check everything works.**
 ```bash
-npm test                                          # 30 automated tests
+npm test                                          # 33 automated tests
 node scripts/verify-live.js http://localhost:3000 # walks through login, signup flows, buttons and redirects
 ```
 
@@ -94,7 +94,7 @@ To update the data: edit `data/scholarships.json` (keep `official_url`, `source_
 |---|---|
 | **FR 1.1** Student registration | `/register` |
 | **FR 1.2** Secure login | `/login` (hashed passwords, lockout, audit) |
-| **FR 1.3** Update account, secure password reset | `/account`, `/forgot` → `/reset/<token>` |
+| **FR 1.3** Update account, secure password reset | `/account`, `/forgot` → `/reset/<token>` (link sent by email; shown on screen only in demo mode) |
 | **FR 2.1** Create/update profile | `/profile` (level, field, country, need, standing) |
 | **FR 3.1** Keyword search | `/scholarships` search box |
 | **FR 3.2** Filters (field, level, **study destination anywhere in the world**, your country, deadline, need) | filter bar on `/scholarships`; keyword search also matches the country (e.g. "Costa Rica") |
@@ -102,7 +102,7 @@ To update the data: edit `data/scholarships.json` (keep `official_url`, `source_
 | **FR 4.1** Scholarship matching | match % and reasons on cards and detail pages (`src/matching.js`) |
 | **FR 4.2** Personalised recommendations | "Recommended for you" on `/dashboard` (profile + saved-topic history) |
 | **FR 5.1** Save scholarships | "Save scholarship" button, `/saved` |
-| **FR 5.2** Deadline reminders | in-app alerts (`/notifications`) created before each saved deadline |
+| **FR 5.2** Deadline reminders | in-app alerts (`/notifications`) and email reminders before each saved deadline (email needs SMTP settings) |
 | **FR 5.3** Application tracking | status + notes on detail page, `/applications` (Interested → Accepted/Rejected/Withdrawn) |
 | **FR 6.1** Listing management | `/admin/listings` (add, edit, deactivate, reactivate, delete) |
 | **FR 6.2** Listing verification | `/admin` review queue (verify or reject with reason) |
@@ -128,6 +128,7 @@ Implemented to match SRS NFR 9 and NFR 12 to 19 and the component diagram:
 - **Audit log** of logins (success and failure), account changes and every administrative action.
 - **Data minimisation**: only the profile fields needed for matching are collected.
 - Pages are served with `Cache-Control: no-store`.
+- Security policy and how to report a vulnerability: see [SECURITY.md](SECURITY.md).
 
 ## Help desk assistant
 
@@ -148,7 +149,7 @@ Every page has a **Help** button (and `/help` lists common questions). It works 
 npm test
 ```
 
-30 automated tests (plus `node scripts/verify-live.js <url>`, which checks a running site end to end) cover hashing, weak-password rejection, CSRF, session rotation, generic login errors, lockout, RBAC, SQL injection, XSS escaping, security headers, password-reset rules, the matching engine, the student journey (profile → search → save → remind → track) and the provider → admin verification flow.
+33 automated tests (plus `node scripts/verify-live.js <url>`, which checks a running site end to end) cover hashing, weak-password rejection, CSRF, session rotation, generic login errors, lockout, RBAC, SQL injection, XSS escaping, security headers, password-reset rules, the matching engine, the student journey (profile → search → save → remind → track) and the provider → admin verification flow.
 
 ## Deploy
 
@@ -200,10 +201,17 @@ hope-scholar/
 
 ## Known limitations
 
-- Reminders are in-app alerts; email/SMS delivery is a future increment (the SRS lists an external notification service as a dependency).
+- Reminders and password-reset links are sent by email only when the SMTP settings are added (see `.env.example`). Without them, reminders appear in the app and reset links appear on screen in demo mode only. SMS is not included.
+- The AI help desk answers from the built-in knowledge base unless an `ANTHROPIC_API_KEY` is set.
+- The database file is not encrypted at rest by the app, and the free Render plan sleeps when idle and erases local data on redeploy.
+- Automated browser checks were run in Chromium only (Chrome and Edge engine); Firefox was not formally tested.
 - Applications are completed on each provider's own site (as stated in the SRS scope).
 - SQLite suits a pilot; move to PostgreSQL for large scale.
 - Scholarship provider API integration is out of scope for this release, as in the SRS.
 
+## Note on contributors
+
+GitHub lists "claude" as a contributor because the first commit of this repository carries a "Co-Authored-By: Claude" line. It is a credit in a commit message, not an account with access to the repository. All pull requests, merges, and repository management were done by Gabriel Mugisha.
+
 ## Licence
-MIT
+MIT, see [LICENSE](LICENSE).
