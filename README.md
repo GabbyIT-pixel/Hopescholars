@@ -138,6 +138,8 @@ Every page has a **Help** button (and `/help` lists common questions). It works 
 - **Email** (password-reset links and deadline reminders): set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` and `MAIL_FROM` (see `.env.example`). Without them the app still shows in-app alerts, and with `DEMO_MODE=true` it shows the reset link on screen.
 - **Backups**: the server copies the database to `data/backups/` once a day (newest 7 kept). Admins can also press **Back up now** on the admin page. On hosts that erase the disk on deploy, attach a persistent disk.
 - **HTTPS**: in production, plain HTTP requests are redirected to HTTPS.
+- **Video tour:** the narrated tour on the *How to use* page is shown only to signed-in users, because it displays account pages. The written steps stay public.
+- **Contributing:** every change goes through a feature branch and pull request, see [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md).
 - Full requirement-by-requirement evidence: [docs/SRS_TRACEABILITY.md](docs/SRS_TRACEABILITY.md).
 
 ## Tests
