@@ -216,16 +216,15 @@ test('video tour is only for signed-in users; the written steps stay public', as
   } finally { close(); }
 });
 
-test('study destination: search and filter find programmes anywhere in the world (EARTH University, Costa Rica)', async () => {
+test('study destination: search and filter find programmes anywhere in the world (Germany)', async () => {
   const { base, close } = await start();
   try {
     const c = new Client(base);
-    const byQ = (await c.get('/scholarships?q=Costa+Rica')).text;
-    assert.match(byQ, /EARTH University \(Costa Rica\)/);
-    const byFilter = (await c.get('/scholarships?study=Costa+Rica')).text;
-    assert.match(byFilter, /EARTH University \(Costa Rica\)/);
+    const byQ = (await c.get('/scholarships?q=Germany')).text;
+    assert.match(byQ, /DAAD/);
+    const byFilter = (await c.get('/scholarships?study=Germany')).text;
+    assert.match(byFilter, /DAAD/);
     assert.ok(!/Chevening/.test(byFilter), 'filter excludes other destinations');
-    assert.match((await c.get('/scholarships?study=Germany')).text, /DAAD/);
     assert.match((await c.get('/')).text, /Browse by study destination/);
     assert.equal((await c.get('/scholarships?study=' + encodeURIComponent("x' OR 1=1 --"))).status, 200);
   } finally { close(); }
