@@ -3,7 +3,7 @@
 A secure web platform that helps students from underserved communities **discover, match, save and track scholarships** in one place.
 Built from the Hope Scholar SRS and UML design (use case, class, sequence and component diagrams).
 
-**Live demo:** _add your public URL here after deploying (see "Deploy")_  
+**Live demo:** https://hope-scholar.onrender.com  
 **Code:** https://github.com/GabbyIT-pixel/Hopescholars  
 **Actors:** Student, Scholarship provider, Administrator.
 
