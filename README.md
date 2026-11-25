@@ -5,6 +5,7 @@ Built from the Hope Scholar SRS and UML design (use case, class, sequence and co
 
 **Live demo:** https://hope-scholar.onrender.com  
 **Code:** https://github.com/GabbyIT-pixel/Hopescholars  
+**Demo Video:** https://youtu.be/fBrGiryNBoo
 **Actors:** Student, Scholarship provider, Administrator.
 
 > Hope Scholar does not award scholarships or guarantee outcomes. Students apply on each provider's official website.
