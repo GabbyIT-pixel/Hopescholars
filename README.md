@@ -5,12 +5,14 @@ Built from the Hope Scholar SRS and UML design (use case, class, sequence and co
 
 **Live demo:** https://hope-scholar.onrender.com  
 **Code:** https://github.com/GabbyIT-pixel/Hopescholars  
-**Demo Video:** https://drive.google.com/file/d/1WizTJ9MNPj8DP5tzOo_hM45qCU0TUL6K/view?usp=sharing
-https://canva.link/d4i3xmwek8n6vmh
+**Demo video (Google Drive):** https://drive.google.com/file/d/1WizTJ9MNPj8DP5tzOo_hM45qCU0TUL6K/view?usp=sharing  
+**Demo video (Canva, backup):** https://canva.link/d4i3xmwek8n6vmh  
 
 **Actors:** Student, Scholarship provider, Administrator.
 
 > Hope Scholar does not award scholarships or guarantee outcomes. Students apply on each provider's official website.
+
+> The live site runs on a free hosting plan. If it has been idle, the first page can take about 30 seconds to load.
 
 ## Contents
 1. [Quick start (5 minutes)](#quick-start)
@@ -47,7 +49,7 @@ npm start
 ```
 You should see `Hope Scholar running on http://localhost:3000`.
 
-**Step 5. Open it.** Go to **http://localhost:3000** in your browser. On first start the app creates its own database, an administrator, demo accounts and the 27-scholarship catalogue. Log in with a demo account from the table below.
+**Step 5. Open it.** Go to **http://localhost:3000** in your browser. On first start the app creates its own database, an administrator, demo accounts and a catalogue of more than 25 scholarships. Log in with a demo account from the table below.
 
 **Step 6 (optional). Check everything works.**
 ```bash
@@ -67,13 +69,15 @@ Stop the server with `Ctrl + C`. Reset all data: stop the server and delete the 
 
 ## Demo accounts
 
-Created automatically outside production (or when `SEED_DEMO=true`).
+These accounts are created automatically when you run the app locally (outside production, or when `SEED_DEMO=true`).
 
 | Role | Email | Password |
 |---|---|---|
 | Student | `student@hopescholar.demo` | `Student#2026demo` |
 | Scholarship provider | `provider@hopescholar.demo` | `Provider#2026demo` |
-| Administrator | `admin@hopescholar.demo` | `Scholar#Hope2026` (or the value of `ADMIN_PASSWORD`) |
+| Administrator (local run only) | `admin@hopescholar.demo` | `Scholar#Hope2026` (or the value of `ADMIN_PASSWORD`) |
+
+The deployed site uses its own administrator password, which is given in the submission document and not in this repository.
 
 You can also create your own student or provider account on the **Sign up** page. Administrator accounts cannot be self-registered.
 
@@ -83,7 +87,7 @@ The only fake item is one clearly labelled **"Demo submission"** waiting in the 
 
 There is no free, reliable public API for scholarships in East Africa, and scraping aggregator sites gives out-of-date or wrong dates. So Hope Scholar uses **official sources only**:
 
-1. **Curated catalogue** (`data/scholarships.json`): 27 programmes written from each owner's own website (UNHCR DAFI, Mastercard Foundation Scholars, Chevening, Commonwealth, DAAD, Fulbright, Erasmus Mundus, Australia Awards, Rhodes, Aga Khan, Pan African University, HELB and more). Every record has the official application link, the page the facts came from, and the date it was last checked.
+1. **Curated catalogue** (`data/scholarships.json`): more than 25 programmes written from each owner's own website (UNHCR DAFI, Mastercard Foundation Scholars, Chevening, Commonwealth, DAAD, Fulbright, Erasmus Mundus, Australia Awards, Rhodes, Aga Khan, Pan African University, HELB and more). Every record has the official application link, the page the facts came from, and the date it was last checked.
 2. **Honest dates.** Most programmes publish next year's dates only shortly before they open. Those show "Dates on the official site" with the programme's own timing note instead of an invented date. Students can add the date they find to get their own reminder.
 3. **Country rules.** Where a programme is limited to certain countries (for example Commonwealth: Kenya, Rwanda, Tanzania, Uganda), search and match scores respect it.
 4. **Providers and admins** can add listings in the app; an administrator verifies each one.
@@ -116,6 +120,8 @@ To update the data: edit `data/scholarships.json` (keep `official_url`, `source_
 | **NFR 3/4/5/10** usability, responsive, accessible | mobile-first CSS, skip link, labels, focus styles, no JavaScript required |
 | **NFR 1** performance | server-rendered light pages, SQLite indexes |
 
+The full requirement-by-requirement table, with how each one is checked, is in [docs/SRS_TRACEABILITY.md](docs/SRS_TRACEABILITY.md).
+
 ## Security
 
 Implemented to match SRS NFR 9 and NFR 12 to 19 and the component diagram:
@@ -139,7 +145,7 @@ Every page has a **Help** button (and `/help` lists common questions). It works 
 
 ## Email, backups and HTTPS
 
-- **Email** (password-reset links and deadline reminders): set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` and `MAIL_FROM` (see `.env.example`). Without them the app still shows in-app alerts, and with `DEMO_MODE=true` it shows the reset link on screen.
+- **Email** (password-reset links and deadline reminders): set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` and `MAIL_FROM` (see `.env.example`). Without them the app still shows in-app alerts, and with `DEMO_MODE=true` it shows the reset link on screen. The deployed site sends email through Brevo on port 2525, because the usual SMTP ports are blocked on Render's free plan.
 - **Backups**: the server copies the database to `data/backups/` once a day (newest 7 kept). Admins can also press **Back up now** on the admin page. On hosts that erase the disk on deploy, attach a persistent disk.
 - **HTTPS**: in production, plain HTTP requests are redirected to HTTPS.
 - **Video tour:** the narrated tour on the *How to use* page is shown only to signed-in users, because it displays account pages. The written steps stay public.
